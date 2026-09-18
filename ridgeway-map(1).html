@@ -1,0 +1,2848 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Ridgeway Recreation Area Field Guide</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/MarkerCluster.css" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/MarkerCluster.Default.css" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/leaflet.markercluster.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet-locatecontrol/0.79.0/L.Control.Locate.min.css" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet-locatecontrol/0.79.0/L.Control.Locate.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --forest: #1f3a2e;
+    --forest-deep: #14261d;
+    --parchment: #ede6d6;
+    --card: #faf7ef;
+    --ink: #2b241b;
+    --tree-color: #4f7a4a;
+    --plant-color: #b8862b;
+    --animal-color: #a0522d;
+    --line: #d8cfba;
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body {
+    margin: 0;
+    height: 100%;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    color: var(--ink);
+    background: var(--parchment);
+  }
+
+  .layout {
+    display: grid;
+    grid-template-columns: 320px 1fr;
+    grid-template-rows: 100vh;
+    height: 100vh;
+  }
+
+  .sidebar {
+    background: var(--forest);
+    color: var(--parchment);
+    padding: 26px 24px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .site-logo {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin: 0 0 10px 0;
+  }
+
+  .logo-icon { flex-shrink: 0; }
+
+  .sidebar-mobile-header .site-logo { margin: 0; }
+
+  .logo-eyebrow {
+    display: block;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-size: 0.68rem;
+    letter-spacing: 0.14em;
+    color: #b7c4ae;
+    font-weight: 600;
+    margin-bottom: 3px;
+  }
+
+  .logo-title {
+    display: block;
+    font-family: 'Fraunces', Georgia, 'Times New Roman', serif;
+    font-style: italic;
+    font-weight: 700;
+    font-size: 1.5rem;
+    color: var(--parchment);
+    line-height: 1.1;
+  }
+
+  .sidebar .subtitle {
+    font-size: 0.86rem;
+    color: #cfd9c9;
+    margin: 0;
+    line-height: 1.5;
+  }
+
+  .divider {
+    height: 1px;
+    background: rgba(255,255,255,0.15);
+    border: none;
+    margin: 0;
+  }
+
+  .category-block { display: flex; flex-direction: column; gap: 2px; }
+
+  .category-head {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    padding: 6px 0 8px 0;
+    cursor: pointer;
+    user-select: none;
+  }
+
+  .category-head input {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 15px;
+    height: 15px;
+    background: var(--parchment);
+    border: 1.5px solid rgba(0,0,0,0.3);
+    border-radius: 3px;
+    position: relative;
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+
+  .category-head input:checked::after {
+    content: '';
+    position: absolute;
+    left: 4px;
+    top: 1px;
+    width: 4px;
+    height: 8px;
+    border: solid #000;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+  }
+
+  .dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .category-head .label {
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    font-weight: 600;
+    color: #dbe4d3;
+  }
+
+  .category-head .count {
+    margin-left: auto;
+    font-size: 0.78rem;
+    color: #a9baa1;
+  }
+
+  .filter-section-title {
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    font-weight: 600;
+    color: #dbe4d3;
+    padding: 6px 0 8px 0;
+  }
+
+  .habitat-filters {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    margin-bottom: 4px;
+  }
+
+  .species-list {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    margin-bottom: 4px;
+  }
+
+  .species-row {
+    display: block;
+    width: 100%;
+    text-align: left;
+    background: none;
+    border: none;
+    border-radius: 5px;
+    padding: 8px 10px 8px 24px;
+    cursor: pointer;
+    color: var(--parchment);
+    font-family: inherit;
+  }
+
+  .species-row:hover {
+    background: rgba(255,255,255,0.08);
+  }
+
+  .species-row.active {
+    background: rgba(255,255,255,0.16);
+  }
+
+  .species-row .common {
+    font-size: 0.92rem;
+    display: block;
+  }
+
+  .species-row .sci {
+    font-size: 0.76rem;
+    font-style: italic;
+    color: #b7c4ae;
+    display: block;
+    margin-top: 1px;
+  }
+
+  .how-to {
+    font-size: 0.82rem;
+    line-height: 1.55;
+    color: #d3ddcb;
+  }
+
+  .how-to strong { color: var(--parchment); }
+
+  /* Applies to every link inside the sidebar (About, story sections, and
+     anything added later) so nothing relies on the browser's default blue,
+     which has poor contrast against the dark green background. */
+  .sidebar a {
+    color: #e0ac4f;
+    text-decoration: underline;
+    text-decoration-color: rgba(224,172,79,0.45);
+    text-underline-offset: 2px;
+  }
+
+  .sidebar a:hover,
+  .sidebar a:focus {
+    color: #f0c06a;
+  }
+
+  .seasonal-widget {
+    background: rgba(224,172,79,0.12);
+    border: 1px solid rgba(224,172,79,0.35);
+    border-radius: 8px;
+    padding: 14px 16px;
+  }
+
+  .seasonal-title {
+    font-family: 'Fraunces', Georgia, 'Times New Roman', serif;
+    font-size: 0.98rem;
+    font-weight: 600;
+    color: var(--parchment);
+    margin-bottom: 8px;
+  }
+
+  .seasonal-empty {
+    font-size: 0.85rem;
+    line-height: 1.5;
+    color: #d3ddcb;
+    margin: 0;
+  }
+
+  .seasonal-items {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .seasonal-item {
+    display: block;
+    width: 100%;
+    text-align: left;
+    background: none;
+    border: none;
+    border-radius: 5px;
+    padding: 6px 8px;
+    cursor: pointer;
+    color: var(--parchment);
+    font-family: inherit;
+    font-size: 0.9rem;
+  }
+
+  .seasonal-item:hover {
+    background: rgba(255,255,255,0.08);
+  }
+
+  .seasonal-label {
+    display: inline-block;
+    font-size: 0.72rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: #e0ac4f;
+    margin-right: 6px;
+  }
+
+  .in-season-badge {
+    display: inline-block;
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: #6b5215;
+    background: #f5e6c4;
+    padding: 5px 12px;
+    border-radius: 999px;
+    margin-bottom: 12px;
+  }
+
+  .about-details {
+    border-bottom: 1px solid rgba(255,255,255,0.15);
+    padding-bottom: 14px;
+  }
+
+  .about-details summary {
+    cursor: pointer;
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    font-weight: 600;
+    color: #dbe4d3;
+    padding: 4px 0;
+    list-style: none;
+  }
+
+  .about-details summary::-webkit-details-marker { display: none; }
+
+  .about-details summary::before {
+    content: '+ ';
+    color: #a9baa1;
+  }
+
+  .about-details[open] summary::before {
+    content: '\2212 ';
+  }
+
+  .about-content {
+    padding-top: 10px;
+    font-size: 0.85rem;
+    line-height: 1.55;
+    color: #d3ddcb;
+  }
+
+  .about-content p { margin: 0 0 12px 0; }
+
+  .visit-info {
+    margin: 0;
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 6px 10px;
+    font-size: 0.82rem;
+  }
+
+  .visit-info dt {
+    font-weight: 600;
+    color: #dbe4d3;
+  }
+
+  .visit-info dd {
+    margin: 0;
+    color: #d3ddcb;
+  }
+
+  .trails-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .trail-item {
+    padding: 8px 10px;
+    background: rgba(255,255,255,0.06);
+    border-radius: 6px;
+    border-left: 3px solid #39d353;
+  }
+
+  .trail-item .trail-name {
+    font-weight: 600;
+    color: var(--parchment);
+    font-size: 0.88rem;
+    margin-bottom: 3px;
+  }
+
+  .trail-item .trail-stats {
+    font-size: 0.78rem;
+    color: #a9baa1;
+  }
+
+  .status-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 4px 0 12px 0;
+  }
+
+  .legend-chip {
+    display: inline-block;
+    font-size: 0.76rem;
+    font-weight: 600;
+    padding: 3px 11px;
+    border-radius: 999px;
+  }
+
+  .sightings-sub-filters {
+    display: none;
+    flex-direction: column;
+    gap: 2px;
+    margin: 4px 0 8px 24px;
+  }
+
+  .sightings-sub-filters.visible { display: flex; }
+
+  .filter-check {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.84rem;
+    color: #d3ddcb;
+    padding: 3px 0;
+    cursor: pointer;
+  }
+
+  .filter-check input {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 14px;
+    height: 14px;
+    background: var(--parchment);
+    border: 1.5px solid rgba(0,0,0,0.3);
+    border-radius: 3px;
+    position: relative;
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+
+  .filter-check input:checked::after {
+    content: '';
+    position: absolute;
+    left: 3.5px;
+    top: 0.5px;
+    width: 3.5px;
+    height: 7px;
+    border: solid #000;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+  }
+
+  .sightings-note {
+    font-size: 0.78rem;
+    line-height: 1.5;
+    color: #a9baa1;
+    font-style: italic;
+    margin: 6px 0 0 0;
+  }
+
+  .sightings-note.is-error { color: #e0a58f; }
+
+  .main {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    min-width: 0;
+  }
+
+  #map {
+    flex: 1 1 auto;
+    min-height: 0;
+    width: 100%;
+  }
+
+  .info-panel {
+    flex: 0 0 auto;
+    background: var(--card);
+    border-top: 3px solid var(--forest);
+    padding: 20px 28px;
+    max-height: 360px;
+    overflow-y: auto;
+  }
+
+  .info-tabs {
+    display: flex;
+    gap: 4px;
+    border-bottom: 1px solid var(--line);
+    margin-bottom: 14px;
+    flex-wrap: wrap;
+  }
+
+  .info-tab-btn {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 500;
+    background: none;
+    border: none;
+    padding: 8px 14px 10px 14px;
+    cursor: pointer;
+    color: #8a8272;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+  }
+
+  .info-tab-btn:hover { color: var(--forest-deep); }
+
+  .info-tab-btn.active {
+    color: var(--forest-deep);
+    border-bottom: 2px solid var(--forest);
+    font-weight: 600;
+  }
+
+  .info-tab-btn.is-caution { color: #9a3b1f; }
+  .info-tab-btn.is-caution.active { border-bottom-color: #9a3b1f; }
+
+  .info-tab-panel { display: none; max-width: 680px; }
+  .info-tab-panel.active { display: block; }
+
+  .info-tab-panel h4 {
+    font-family: 'Fraunces', Georgia, 'Times New Roman', serif;
+    font-size: 0.98rem;
+    margin: 14px 0 4px 0;
+    color: var(--forest-deep);
+  }
+
+  .info-tab-panel h4:first-child { margin-top: 0; }
+
+  .id-warning {
+    font-size: 0.83rem;
+    line-height: 1.5;
+    color: #6b6355;
+    background: #f0ece0;
+    border-left: 3px solid var(--plant-color);
+    padding: 10px 12px;
+    border-radius: 3px;
+    margin-top: 14px;
+  }
+
+  .caution-box {
+    font-size: 0.92rem;
+    line-height: 1.55;
+    color: #5c2314;
+    background: #fbeae3;
+    border-left: 3px solid #9a3b1f;
+    padding: 12px 14px;
+    border-radius: 3px;
+  }
+
+  .info-empty {
+    color: #8a8272;
+    font-size: 0.95rem;
+    font-style: italic;
+  }
+
+  .info-content .category-tag {
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+
+  .info-content h2 {
+    font-family: 'Fraunces', Georgia, 'Times New Roman', serif;
+    font-size: 1.4rem;
+    margin: 0 0 2px 0;
+    color: var(--forest-deep);
+  }
+
+  .info-content .sci-name {
+    font-style: italic;
+    font-size: 0.92rem;
+    color: #6b6355;
+    margin: 0 0 10px 0;
+  }
+
+  .badge-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 14px;
+  }
+
+  .learn-more-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+    margin-top: 16px;
+    padding-top: 14px;
+    border-top: 1px solid var(--line);
+    font-size: 0.85rem;
+  }
+
+  .learn-more-label {
+    font-weight: 600;
+    color: #6b6355;
+  }
+
+  .learn-more-row a {
+    color: #3d6b8a;
+    text-decoration: none;
+    font-weight: 500;
+  }
+
+  .learn-more-row a:hover {
+    text-decoration: underline;
+  }
+
+  .habitat-badge {
+    display: inline-block;
+    font-size: 0.74rem;
+    font-weight: 600;
+    padding: 3px 11px;
+    border-radius: 999px;
+    margin-bottom: 0;
+  }
+
+  .native-alt-box {
+    font-size: 0.88rem;
+    line-height: 1.5;
+    color: #1e4d2b;
+    background: #e7f0e4;
+    border-left: 3px solid #3f7d4f;
+    padding: 10px 12px;
+    border-radius: 3px;
+    margin-top: 12px;
+  }
+
+  .connections-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .connection-item {
+    display: block;
+    width: 100%;
+    text-align: left;
+    background: #f0ece0;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    padding: 10px 14px;
+    cursor: pointer;
+    font-family: inherit;
+    transition: background 0.15s ease;
+  }
+
+  .connection-item:hover {
+    background: #e7e0cf;
+  }
+
+  .connection-target {
+    font-family: 'Fraunces', Georgia, 'Times New Roman', serif;
+    font-size: 0.98rem;
+    font-weight: 600;
+    color: var(--forest-deep);
+    margin-bottom: 3px;
+  }
+
+  .connection-arrow {
+    color: #8a8272;
+    font-weight: 400;
+  }
+
+  .connection-desc {
+    font-size: 0.85rem;
+    line-height: 1.45;
+    color: #6b6355;
+  }
+
+  .info-content p {
+    font-size: 0.95rem;
+    line-height: 1.55;
+    margin: 0 0 10px 0;
+    max-width: 640px;
+  }
+
+  .info-content .season {
+    font-size: 0.85rem;
+    color: #6b6355;
+    border-top: 1px solid var(--line);
+    padding-top: 10px;
+    margin-top: 4px;
+  }
+
+  .leaflet-div-icon { background: none; border: none; }
+
+  .mypin-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(20,38,29,0.55);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+    z-index: 1200;
+  }
+
+  .mypin-backdrop.visible {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .mypin-modal {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0.96);
+    width: 90%;
+    max-width: 360px;
+    max-height: 85vh;
+    overflow-y: auto;
+    background: var(--card);
+    border-radius: 12px;
+    padding: 22px 22px 18px 22px;
+    box-shadow: 0 12px 40px rgba(0,0,0,0.4);
+    z-index: 1300;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease, transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .mypin-modal.open {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translate(-50%, -50%) scale(1);
+  }
+
+  .mypin-modal h3 {
+    font-family: 'Fraunces', Georgia, 'Times New Roman', serif;
+    font-size: 1.2rem;
+    color: var(--forest-deep);
+    margin: 0 0 4px 0;
+  }
+
+  .mypin-coords {
+    font-size: 0.78rem;
+    color: #8a8272;
+    margin: 0 0 16px 0;
+  }
+
+  .mypin-label {
+    display: block;
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-weight: 600;
+    color: #6b6355;
+    margin: 14px 0 6px 0;
+  }
+
+  .mypin-category-choices {
+    display: flex;
+    gap: 8px;
+  }
+
+  .mypin-cat-btn {
+    flex: 1;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-size: 0.82rem;
+    font-weight: 500;
+    padding: 9px 6px;
+    border-radius: 6px;
+    border: 1.5px solid var(--line);
+    background: #f5f2e8;
+    color: var(--ink);
+    cursor: pointer;
+  }
+
+  .mypin-cat-btn.active {
+    background: var(--forest);
+    border-color: var(--forest);
+    color: var(--parchment);
+  }
+
+  .mypin-input {
+    width: 100%;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-size: 0.9rem;
+    padding: 9px 10px;
+    border-radius: 6px;
+    border: 1.5px solid var(--line);
+    background: #fff;
+    color: var(--ink);
+  }
+
+  .mypin-textarea {
+    min-height: 70px;
+    resize: vertical;
+    font-family: inherit;
+  }
+
+  .mypin-modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 20px;
+  }
+
+  .mypin-btn-secondary,
+  .mypin-btn-primary {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 500;
+    padding: 9px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    border: none;
+  }
+
+  .mypin-btn-secondary {
+    background: none;
+    color: #8a8272;
+  }
+
+  .mypin-btn-primary {
+    background: var(--forest);
+    color: var(--parchment);
+  }
+
+  .mobile-btn {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-size: 0.82rem;
+    font-weight: 500;
+    background: rgba(255,255,255,0.14);
+    color: var(--parchment);
+    border: none;
+    border-radius: 6px;
+    padding: 8px 12px;
+    cursor: pointer;
+  }
+
+  .help-trigger-btn {
+    display: inline-block;
+    margin-top: 10px;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-size: 0.8rem;
+    font-weight: 500;
+    background: rgba(224,172,79,0.16);
+    color: #e0ac4f;
+    border: 1px solid rgba(224,172,79,0.4);
+    border-radius: 6px;
+    padding: 7px 12px;
+    cursor: pointer;
+  }
+
+  .help-trigger-btn:hover {
+    background: rgba(224,172,79,0.26);
+  }
+
+  .help-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(20,38,29,0.55);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+    z-index: 1200;
+  }
+
+  .help-backdrop.visible {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .help-modal {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0.96);
+    width: 90%;
+    max-width: 480px;
+    max-height: 80vh;
+    overflow-y: auto;
+    background: var(--card);
+    border-radius: 12px;
+    padding: 26px 26px 22px 26px;
+    box-shadow: 0 12px 40px rgba(0,0,0,0.4);
+    z-index: 1300;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease, transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .help-modal.open {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translate(-50%, -50%) scale(1);
+  }
+
+  .help-close-btn {
+    position: absolute;
+    top: 14px;
+    right: 16px;
+    background: none;
+    border: none;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-size: 0.85rem;
+    color: #8a8272;
+    cursor: pointer;
+    padding: 6px 8px;
+  }
+
+  .help-title {
+    font-family: 'Fraunces', Georgia, 'Times New Roman', serif;
+    font-size: 1.4rem;
+    color: var(--forest-deep);
+    margin: 0 0 2px 0;
+  }
+
+  .help-updated {
+    font-size: 0.78rem;
+    color: #8a8272;
+    font-style: italic;
+    margin: 0 0 16px 0;
+  }
+
+  .help-modal h4 {
+    font-family: 'Fraunces', Georgia, 'Times New Roman', serif;
+    font-size: 1.02rem;
+    color: var(--forest-deep);
+    margin: 20px 0 6px 0;
+  }
+
+  .help-modal h4:first-of-type {
+    margin-top: 0;
+  }
+
+  .help-modal p {
+    font-size: 0.88rem;
+    line-height: 1.55;
+    color: var(--ink);
+    margin: 0 0 8px 0;
+  }
+
+  .contact-block p {
+    margin: 0 0 8px 0;
+    line-height: 1.5;
+  }
+
+  .mypin-section-divider {
+    height: 1px;
+    background: rgba(255,255,255,0.15);
+    margin: 16px 0 14px 0;
+  }
+
+  .mypin-section-label {
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-weight: 600;
+    color: #dbe4d3;
+    margin: 0 0 4px 0;
+  }
+
+  .mypin-data-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 10px;
+    flex-wrap: wrap;
+  }
+
+  .mypin-upload-status {
+    font-size: 0.78rem;
+    line-height: 1.5;
+    color: #a9baa1;
+    font-style: italic;
+    margin: 8px 0 0 0;
+  }
+
+  .mypin-upload-status.is-error {
+    color: #e0a58f;
+  }
+
+  .leaflet-popup-content-wrapper {
+    background: var(--card);
+    border-radius: 6px;
+    box-shadow: 0 6px 20px rgba(20,38,29,0.25);
+  }
+
+  .popup-card { min-width: 200px; max-width: 240px; }
+
+  .popup-card .category {
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+
+  .popup-card h3 {
+    font-family: 'Fraunces', Georgia, 'Times New Roman', serif;
+    font-size: 1.05rem;
+    margin: 0 0 2px 0;
+    color: var(--forest-deep);
+  }
+
+  .popup-card .sci-name {
+    font-style: italic;
+    font-size: 0.8rem;
+    color: #6b6355;
+    margin: 0 0 8px 0;
+  }
+
+  .popup-card p {
+    font-size: 0.85rem;
+    line-height: 1.45;
+    margin: 0 0 6px 0;
+    color: var(--ink);
+  }
+
+  .popup-card .season {
+    font-size: 0.8rem;
+    border-top: 1px solid var(--line);
+    padding-top: 8px;
+    margin-top: 6px;
+  }
+
+  .popup-card .season a {
+    color: #3d6b8a;
+    text-decoration: none;
+    font-weight: 500;
+  }
+
+  .leaflet-control-locate a {
+    background: var(--card) !important;
+  }
+
+  .leaflet-control-locate a:hover {
+    background: #f0ece0 !important;
+  }
+
+  .leaflet-control-layers {
+    border: none !important;
+    border-radius: 6px !important;
+    box-shadow: 0 4px 14px rgba(20,38,29,0.22) !important;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: var(--card) !important;
+  }
+
+  .leaflet-control-layers-list {
+    padding: 4px 2px;
+  }
+
+  .leaflet-control-layers label {
+    font-size: 0.88rem;
+    color: var(--ink);
+    padding: 4px 8px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .mobile-topbar { display: none; }
+  .drawer-backdrop { display: none; }
+  .sidebar-mobile-header { display: none; }
+  .info-close-btn { display: none; }
+
+  @media (max-width: 760px) {
+    html, body { height: 100%; }
+
+    .layout {
+      display: block;
+      position: relative;
+      height: 100vh;
+      height: 100svh;
+      overflow: hidden;
+    }
+
+    .main {
+      height: 100%;
+      padding-top: 68px;
+      padding-top: calc(68px + env(safe-area-inset-top, 0px));
+    }
+
+    #map { height: 100%; }
+
+    /* Sidebar becomes a full-screen slide-in drawer, closed by default so
+       the map is the first thing visitors see. */
+    .sidebar {
+      position: fixed;
+      inset: 0;
+      max-height: none;
+      height: 100vh;
+      height: 100svh;
+      transform: translateX(-100%);
+      transition: transform 0.24s cubic-bezier(0.16, 1, 0.3, 1);
+      z-index: 1000;
+      padding-top: 18px;
+      padding-top: calc(18px + env(safe-area-inset-top, 0px));
+      padding-bottom: env(safe-area-inset-bottom, 0px);
+      padding-left: calc(24px + env(safe-area-inset-left, 0px));
+      padding-right: calc(24px + env(safe-area-inset-right, 0px));
+    }
+
+    .sidebar.open { transform: translateX(0); }
+
+    .sidebar-title-block { display: none; }
+
+    .sidebar-mobile-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-bottom: 14px;
+      margin-bottom: 6px;
+      border-bottom: 1px solid rgba(255,255,255,0.15);
+    }
+
+    .sidebar-mobile-header span {
+      font-family: 'Fraunces', Georgia, 'Times New Roman', serif;
+      font-size: 1.15rem;
+      font-weight: 600;
+    }
+
+    /* Info card becomes a bottom sheet that slides up over the map instead
+       of permanently occupying screen space. */
+    .info-panel {
+      position: fixed;
+      left: 0; right: 0; bottom: 0;
+      max-height: 55vh;
+      transform: translateY(100%);
+      transition: transform 0.24s cubic-bezier(0.16, 1, 0.3, 1);
+      z-index: 950;
+      border-radius: 16px 16px 0 0;
+      box-shadow: 0 -8px 24px rgba(20,38,29,0.35);
+      padding-top: 40px;
+      padding-bottom: calc(20px + env(safe-area-inset-bottom, 0px));
+      padding-left: calc(28px + env(safe-area-inset-left, 0px));
+      padding-right: calc(28px + env(safe-area-inset-right, 0px));
+    }
+
+    .info-panel.open { transform: translateY(0); }
+
+    .info-close-btn {
+      display: block;
+      position: absolute;
+      top: 8px; right: 12px;
+      background: none;
+      border: none;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      font-size: 0.82rem;
+      color: #8a8272;
+      cursor: pointer;
+      padding: 8px;
+    }
+
+    .mobile-topbar {
+      display: flex;
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 900;
+      background: var(--forest);
+      color: var(--parchment);
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 16px;
+      padding-top: calc(12px + env(safe-area-inset-top, 0px));
+      padding-left: calc(16px + env(safe-area-inset-left, 0px));
+      padding-right: calc(16px + env(safe-area-inset-right, 0px));
+      box-shadow: 0 2px 10px rgba(0,0,0,0.25);
+    }
+
+    .mobile-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .mobile-topbar .mobile-title {
+      font-family: 'Fraunces', Georgia, 'Times New Roman', serif;
+      font-size: 1.05rem;
+      font-weight: 600;
+      line-height: 1.3;
+    }
+
+    .logo-title-sm {
+      display: block;
+      font-family: 'Fraunces', Georgia, 'Times New Roman', serif;
+      font-style: italic;
+      font-weight: 700;
+      font-size: 1.05rem;
+      color: var(--parchment);
+      line-height: 1.15;
+    }
+
+    .mobile-btn {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      font-size: 0.82rem;
+      font-weight: 500;
+      background: rgba(255,255,255,0.14);
+      color: var(--parchment);
+      border: none;
+      border-radius: 6px;
+      padding: 8px 12px;
+      cursor: pointer;
+    }
+
+    .mobile-hamburger {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      gap: 4px;
+      width: 42px;
+      height: 38px;
+      padding: 0;
+      flex-shrink: 0;
+    }
+
+    .mobile-hamburger span {
+      display: block;
+      width: 18px;
+      height: 2px;
+      background: var(--parchment);
+      border-radius: 1px;
+    }
+
+    .drawer-backdrop {
+      display: block;
+      position: fixed;
+      inset: 0;
+      background: rgba(20,38,29,0.5);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+      z-index: 990;
+    }
+
+    .drawer-backdrop.visible {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    /* Push the map's built-in controls below the fixed top bar */
+    .leaflet-top.leaflet-right {
+      margin-top: 78px;
+      margin-top: calc(78px + env(safe-area-inset-top, 0px));
+    }
+
+    /* Bigger tap targets */
+    .species-row { padding: 11px 10px 11px 26px; }
+    .category-head { padding: 9px 0 10px 0; }
+    .category-head input { width: 18px; height: 18px; }
+    .category-head input:checked::after { left: 5px; top: 2px; width: 5px; height: 9px; }
+    .filter-check { padding: 7px 0; }
+    .filter-check input { width: 17px; height: 17px; }
+    .filter-check input:checked::after { left: 4.5px; top: 1.5px; width: 4.5px; height: 8px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="mobile-topbar">
+  <div class="mobile-logo">
+    <svg class="logo-icon-sm" width="20" height="22" viewBox="0 0 38 42" aria-hidden="true">
+      <rect x="16" y="34" width="6" height="7" fill="#e0ac4f"/>
+      <polygon points="19,2 30,20 8,20" fill="#e0ac4f"/>
+      <polygon points="19,11 32,27 6,27" fill="#e0ac4f"/>
+      <polygon points="19,19 34,36 4,36" fill="#e0ac4f"/>
+    </svg>
+    <span class="mobile-title">
+      <span class="logo-eyebrow">Ridgeway Recreation Area</span>
+      <span class="logo-title-sm">Field Guide</span>
+    </span>
+  </div>
+  <button type="button" id="open-list-btn" class="mobile-btn mobile-hamburger" aria-label="Open menu">
+    <span></span><span></span><span></span>
+  </button>
+</div>
+
+<div class="drawer-backdrop" id="drawer-backdrop"></div>
+
+<div class="mypin-backdrop" id="mypin-backdrop"></div>
+<div class="mypin-modal" id="mypin-modal">
+  <h3 id="mypin-modal-title">Save a Personal Pin</h3>
+
+  <label class="mypin-label">Location</label>
+  <div class="mypin-category-choices" id="mypin-location-choices">
+    <button type="button" class="mypin-cat-btn active" data-loc="longpress">Where I Pressed</button>
+    <button type="button" class="mypin-cat-btn" data-loc="gps">My GPS Location</button>
+  </div>
+  <p class="mypin-coords" id="mypin-coords"></p>
+
+  <label class="mypin-label">What is it?</label>
+  <div class="mypin-category-choices" id="mypin-category-choices">
+    <button type="button" class="mypin-cat-btn" data-cat="plant">Plant</button>
+    <button type="button" class="mypin-cat-btn" data-cat="animal">Animal</button>
+    <button type="button" class="mypin-cat-btn" data-cat="unsure">Not Sure</button>
+  </div>
+
+  <label class="mypin-label" for="mypin-name-input">Name or guess</label>
+  <input type="text" id="mypin-name-input" class="mypin-input" placeholder="e.g. Might be a type of fern">
+
+  <label class="mypin-label" for="mypin-notes-input">Notes</label>
+  <textarea id="mypin-notes-input" class="mypin-input mypin-textarea" placeholder="Anything else worth remembering..."></textarea>
+
+  <div class="mypin-modal-actions">
+    <button type="button" id="mypin-cancel-btn" class="mypin-btn-secondary">Cancel</button>
+    <button type="button" id="mypin-save-btn" class="mypin-btn-primary">Save Pin</button>
+  </div>
+</div>
+
+<div class="help-backdrop" id="help-backdrop"></div>
+<div class="help-modal" id="help-modal">
+  <button type="button" class="help-close-btn" id="help-close-btn">Close &#10005;</button>
+  <h2 class="help-title">Help &amp; Instructions</h2>
+  <p class="help-updated">Last updated: September 7, 2026</p>
+
+  <h4>Getting around the map</h4>
+  <p>Pan by dragging and zoom with the +/&minus; buttons or a pinch gesture. The layer switcher in the top-right corner of the map lets you change the base map between Street map, Satellite, OpenTopoMap, and USGS Topo: the same panel also has checkboxes for Community Sightings, Trails, and Areas. When you're zoomed out, nearby pins group into a numbered circle so the map doesn't get cluttered: zoom in, or tap the circle, to spread them back apart.</p>
+
+  <h4>Exploring species</h4>
+  <p>Pins are grouped into Trees, Plants &amp; Wildflowers, Animals, and Landmarks in the menu. Tap a pin on the map or a name in the list to open its field notes, organized into tabs: Overview, Ecology, Uses (edible/medicinal, where relevant), Caution (only shown when there's a genuine hazard), and Connections (links to ecologically related species you can tap through to). Each card also shows a Habitat badge and a Native/Introduced/Invasive status badge.</p>
+  <p>The Habitat and Native Status filters in the menu work alongside the Trees/Plants/Animals filters: a pin only shows when all of its relevant filters are checked.</p>
+
+  <h4>Trails &amp; areas</h4>
+  <p>Recorded trails appear as green dashed lines with their distance and elevation gain listed under "Trails" in the menu. Shaded areas mark the boundary of a specific place (like a meadow or a habitat zone) rather than a walking path, listed under "Areas." Both can be toggled on or off from the map's layer switcher.</p>
+
+  <h4>Community sightings</h4>
+  <p>This optional layer pulls in real, community-submitted observations from iNaturalist near the park - a separate thing from the curated species pins above, since these are individual sightings rather than field-guide writeups. Turn it on from the menu (or the map's layer switcher), then use the sub-filters to show just birds, plants, insects, and so on. Tap any dot to see the photo, date, and a link back to the original observation.</p>
+
+  <h4>Finding your location</h4>
+  <p>The navigation arrow button near the zoom controls shows your position on the map and follows you as you walk. This needs your permission the first time, only works on the live, secure website (not a locally saved file), and works best on a phone with GPS: accuracy will vary, especially under heavy tree cover.</p>
+
+  <h4>Saving your own pins</h4>
+  <p>Long-press anywhere on the map to drop a personal pin for something you've found. First, choose whether the pin should sit exactly where you pressed, or at your live GPS location instead (useful if your press was a rough guess but your actual position is more precise). Then pick Plant, Animal, or Not Sure, and add a name or guess and any notes. These show up as solid red circles, the same size as Community Sightings dots but a different color, and are saved privately on this device.</p>
+  <p>From the "My Pins" section of the menu, you can:</p>
+  <p><strong>Download for email</strong>: exports one pin (or all of them) as a text file to send to the park guide's maintainer for consideration, along with your own photo attached separately.</p>
+  <p><strong>Export/Upload My Data</strong>: a different pair of buttons for your own continuity. Export saves everything to a file you keep, and Upload reads that file back in later, on this device or another one, adding anything new without creating duplicates.</p>
+
+  <h4>This month at the park</h4>
+  <p>The highlighted box near the top of the menu shows whatever's currently flowering, fruiting, or otherwise in season, based on your device's own clock: tap an entry to jump straight to that species.</p>
+
+  <h4>Questions, comments, or suggestions</h4>
+  <p>A "Questions, Comments &amp; Suggestions" section near the bottom of the menu has a direct email link for general feedback. If you'd like to suggest a specific plant or animal be added to the guide, use a personal pin's Download option instead, so your coordinates and notes come through with it.</p>
+</div>
+
+<div class="layout">
+  <aside class="sidebar">
+    <div class="sidebar-mobile-header">
+      <div class="site-logo">
+        <svg class="logo-icon" width="26" height="30" viewBox="0 0 38 42" aria-hidden="true">
+          <rect x="16" y="34" width="6" height="7" fill="#e0ac4f"/>
+          <polygon points="19,2 30,20 8,20" fill="#e0ac4f"/>
+          <polygon points="19,11 32,27 6,27" fill="#e0ac4f"/>
+          <polygon points="19,19 34,36 4,36" fill="#e0ac4f"/>
+        </svg>
+        <span>
+          <span class="logo-eyebrow">Ridgeway Recreation Area</span>
+          <span class="logo-title-sm">Field Guide</span>
+        </span>
+      </div>
+      <button type="button" id="close-list-btn" class="mobile-btn">Close &#10005;</button>
+    </div>
+
+    <div class="sidebar-title-block">
+      <h1 class="site-logo">
+        <svg class="logo-icon" width="34" height="38" viewBox="0 0 38 42" aria-hidden="true">
+          <rect x="16" y="34" width="6" height="7" fill="#e0ac4f"/>
+          <polygon points="19,2 30,20 8,20" fill="#e0ac4f"/>
+          <polygon points="19,11 32,27 6,27" fill="#e0ac4f"/>
+          <polygon points="19,19 34,36 4,36" fill="#e0ac4f"/>
+        </svg>
+        <span>
+          <span class="logo-eyebrow">Ridgeway Recreation Area</span>
+          <span class="logo-title">Field Guide</span>
+        </span>
+      </h1>
+      <p class="subtitle">An interactive record of the trees, plants, and animals found around the Ridgeway Recreation Area at Carters Lake, near Ellijay, GA.</p>
+    </div>
+
+    <button type="button" id="open-help-btn" class="help-trigger-btn">Help &amp; Instructions</button>
+
+    <div class="seasonal-widget" id="seasonal-widget"></div>
+
+    <details class="about-details">
+      <summary>About &amp; Visiting Info</summary>
+      <div class="about-content">
+        <p>The Ridgeway Recreation Area sits on Tails Creek at Carters Lake, a 3,200-acre U.S. Army Corps of Engineers reservoir in the Blue Ridge foothills of north Georgia. It has a boat ramp, a nature trail that crosses the creek on a wooden bridge, and a mountain bike loop. This guide is built from real visits and will grow over time.</p>
+        <dl class="visit-info">
+          <dt>Address</dt>
+          <dd>2950 Hap Holt Road, Ellijay, GA 30540 - <a href="https://www.google.com/maps/search/?api=1&query=2950+Hap+Holt+Road,+Ellijay,+GA+30540" target="_blank" rel="noopener">Get directions</a> (please verify before visiting)</dd>
+          <dt>Phone</dt>
+          <dd>(706) 334-2248 (Carters Lake Resource Manager's Office)</dd>
+          <dt>Trails &amp; Grounds</dt>
+          <dd>Dawn to dusk, daily (typical for Corps of Engineers recreation areas; verify locally)</dd>
+          <dt>Pets</dt>
+          <dd>Leashed pets are welcome on the trails</dd>
+        </dl>
+      </div>
+    </details>
+
+    <details class="about-details">
+      <summary>Trails</summary>
+      <div class="about-content">
+        <div class="trails-list" id="trails-list"></div>
+        <p style="margin-top: 12px;">Toggle any trail on or off from the map layers menu in the top-right corner of the map.</p>
+      </div>
+    </details>
+
+    <details class="about-details">
+      <summary>Areas</summary>
+      <div class="about-content">
+        <div class="trails-list" id="areas-list"></div>
+        <p style="margin-top: 12px;">Toggle any shaded area on or off from the map layers menu in the top-right corner of the map.</p>
+      </div>
+    </details>
+
+    <details class="about-details">
+      <summary>My Pins</summary>
+      <div class="about-content">
+        <p>Long-press anywhere on the map to drop a personal pin for something you've spotted. These are saved only on this device.</p>
+        <div class="trails-list" id="mypins-list" style="margin-top: 12px;"></div>
+        <button type="button" id="mypins-export-all-btn" class="mobile-btn" style="margin-top: 10px; display: none;">Download All for Email</button>
+
+        <div class="mypin-section-divider"></div>
+
+        <p class="mypin-section-label">Save &amp; continue later</p>
+        <p style="font-size: 0.82rem;">Export everything to a file you can keep, then upload it again next time - on this device or a different one - to pick up where you left off.</p>
+        <div class="mypin-data-actions">
+          <button type="button" id="mypins-export-data-btn" class="mobile-btn">Export My Data</button>
+          <button type="button" id="mypins-upload-data-btn" class="mobile-btn">Upload My Data</button>
+          <input type="file" id="mypins-upload-input" accept=".json" style="display: none;">
+        </div>
+        <p class="mypin-upload-status" id="mypins-upload-status"></p>
+      </div>
+    </details>
+
+    <hr class="divider">
+
+    <div class="category-block" id="sightings-block">
+      <label class="category-head">
+        <input type="checkbox" id="sightings-master-toggle" autocomplete="off">
+        <span class="dot" style="background:#3d6b8a"></span>
+        <span class="label">Community Sightings</span>
+      </label>
+      <div class="sightings-sub-filters" id="sightings-sub-filters">
+        <label class="filter-check"><input type="checkbox" checked autocomplete="off" data-bucket="plants"> Plants</label>
+        <label class="filter-check"><input type="checkbox" checked autocomplete="off" data-bucket="fungi"> Fungi &amp; Lichens</label>
+        <label class="filter-check"><input type="checkbox" checked autocomplete="off" data-bucket="birds"> Birds</label>
+        <label class="filter-check"><input type="checkbox" checked autocomplete="off" data-bucket="mammals"> Mammals</label>
+        <label class="filter-check"><input type="checkbox" checked autocomplete="off" data-bucket="herps"> Reptiles &amp; Amphibians</label>
+        <label class="filter-check"><input type="checkbox" checked autocomplete="off" data-bucket="insects"> Insects &amp; Spiders</label>
+        <label class="filter-check"><input type="checkbox" checked autocomplete="off" data-bucket="other"> Other Wildlife</label>
+      </div>
+      <p class="sightings-note" id="sightings-note">Real sightings logged by naturalists near the park, via iNaturalist.</p>
+    </div>
+
+    <hr class="divider">
+
+    <div id="sidebar-categories"></div>
+
+    <hr class="divider">
+
+    <div class="category-block" id="habitat-block">
+      <div class="filter-section-title">Habitat</div>
+      <div class="habitat-filters" id="habitat-filters"></div>
+    </div>
+
+    <hr class="divider">
+
+    <div class="category-block" id="status-block">
+      <div class="filter-section-title">Native Status</div>
+      <div class="habitat-filters" id="status-filters"></div>
+    </div>
+
+    <hr class="divider">
+
+    <details class="about-details">
+      <summary>Native vs. Invasive at This Park</summary>
+      <div class="about-content">
+        <p>Like much of the Southeast, the land around Carters Lake carries the fingerprints of centuries of human movement. Species introduced from Asia and Europe, often planted intentionally for ornamental beauty or erosion control, have spread well beyond where they were planted, and now compete with native species across Georgia. As species get added to this guide, look for the status badge on each card to see which is which.</p>
+        <p>Even a species with some redeeming value, like feeding pollinators or birds, can still cause harm when it spreads unchecked: a landscape dominated by a few aggressive newcomers supports less overall biodiversity than one built on a full community of native species.</p>
+        <div class="status-legend">
+          <span class="legend-chip" style="background:#3f7d4f22; color:#3f7d4f;">Native</span>
+          <span class="legend-chip" style="background:#5a6b7a22; color:#5a6b7a;">Introduced</span>
+          <span class="legend-chip" style="background:#b8452f22; color:#b8452f;">Invasive</span>
+        </div>
+        <p>Look for this status badge on each species card, and a small warning dot on invasive species' map pins. Where relevant, we've noted a native alternative that fills a similar role. You can help track the spread of invasive species through Georgia's <a href="https://www.eddmaps.org/" target="_blank" rel="noopener">Early Detection &amp; Distribution Mapping System (EDDMapS)</a>.</p>
+      </div>
+    </details>
+
+    <hr class="divider">
+
+    <p class="how-to"><strong>How to use:</strong> Tap a pin on the map or a species name here to open its field notes below the map.</p>
+
+    <hr class="divider">
+
+    <div class="contact-block">
+      <p class="filter-section-title" style="margin-bottom: 6px;">Questions, Comments &amp; Suggestions</p>
+      <p style="font-size: 0.85rem;">For general questions or feedback, email us directly at <a href="#" id="contact-email-link"></a>.</p>
+      <p style="font-size: 0.82rem; color: #a9baa1;">To suggest a specific plant or animal for the guide, save a personal pin instead (see "My Pins" above) and use its Download option to send it along with a photo.</p>
+    </div>
+  </aside>
+
+  <div class="main">
+    <div id="map"></div>
+    <div class="info-panel" id="info-panel">
+      <p class="info-empty">Select a pin on the map or a species from the list to see its field notes here.</p>
+    </div>
+  </div>
+</div>
+
+<script>
+  // ---- SPECIES DATA ----
+  // Add new entries here as coordinates come in. Each needs:
+  //   id, category ("tree"|"plant"|"animal"|"landmark"), name, sciName, lat, lng
+  //   overview   -- identification notes / description (always shown)
+  //   habitat    -- one of habitatMeta's keys below; where in the park it's typically found.
+  //                 SPECIES ONLY -- omit for landmarks (a memorial bridge has no habitat).
+  //   status     -- one of statusMeta's keys below: "native" | "introduced" | "invasive"
+  //                 SPECIES ONLY -- omit for landmarks.
+  //   season     -- SPECIES ONLY, omit for landmarks (or anything without a meaningful season)
+  //   ecology    -- ecological role / native-invasive status (species only)
+  //   significance -- LANDMARKS ONLY -- history/meaning, shown in a "History" tab instead
+  //                   of the "Ecology" tab that ecology powers
+  //   edible     -- edible uses, detailed (plants/trees only, omit if not edible)
+  //   medicinal  -- medicinal/traditional uses, detailed (plants/trees only, omit if none)
+  //   caution    -- ONLY include this if there's a genuine hazard (toxic parts/lookalikes
+  //                 for plants, or a real danger for animals like a venomous snake).
+  //                 Leave it out entirely for things like birds or rabbits.
+  //   funFact    -- optional, shown at the bottom of Overview
+  //   nativeAlternative -- ONLY for invasive species; a native species that fills a similar role
+  //   connections -- optional array of { id, relationship }. Only include a connection
+  //                  when it's ecologically real (shared habitat, food source, competition,
+  //                  etc.) -- don't force a link between species that don't actually interact.
+  //   phenology  -- optional array of { months: [1-12,...], label }. Marks specific windows
+  //                 (flowering, fruiting, migration, etc.) used to power the "This Month"
+  //                 widget and in-season badge. Omit entirely for species without a
+  //                 meaningful seasonal spike (e.g. a bird present and active year-round).
+  //   learnMoreLinks -- optional array of { label, url }. Shown as a small link row below
+  //                 the tabs, always visible regardless of which tab is open. Only link to
+  //                 real, verified pages -- iNaturalist's taxon search is a safe general
+  //                 option since it needs no species-specific ID: 
+  //                 https://www.inaturalist.org/taxa/search?q=<scientific+name>
+  const species = [
+    // No species yet -- this is a fresh scaffold. Add entries here once a
+    // real visit to the Ridgeway Recreation Area produces real coordinates
+    // and identifications. See the
+    // North Hall Park Field Guide's species array for the exact field
+    // format and content standards to follow (genus-level IDs are fine
+    // when species-level certainty isn't there; only add a "caution" or
+    // "connections" entry when it's genuinely real).
+  ];
+
+
+  const categoryMeta = {
+    tree:   { label: "Trees",               color: "#5fae55" },
+    plant:  { label: "Plants & Wildflowers", color: "#dba53a" },
+    animal: { label: "Animals",             color: "#c96a3f" },
+    landmark: { label: "Landmarks",          color: "#a37fc4" }
+  };
+
+  const habitatMeta = {
+    wetland:      { label: "Wetland & Creek",         color: "#3d6b8a" },
+    uplandForest: { label: "Upland Forest",           color: "#3f5e3f" },
+    trailEdge:    { label: "Trail Edge & Clearing",   color: "#c17f3b" },
+    openField:    { label: "Open Field",              color: "#7a8f4f" }
+  };
+
+  const statusMeta = {
+    native:     { label: "Native",     color: "#3f7d4f" },
+    introduced: { label: "Introduced", color: "#5a6b7a" },
+    invasive:   { label: "Invasive",   color: "#b8452f" }
+  };
+
+  // ---- PHENOLOGY / SEASONAL HELPERS ----
+  const MONTH_NAMES = ["January", "February", "March", "April", "May", "June",
+    "July", "August", "September", "October", "November", "December"];
+
+  // Returns the label for whatever phenology window is active this month for
+  // a given species, or null if it doesn't have one (or has none active now).
+  function getCurrentPhenologyLabel(s) {
+    if (!s.phenology) return null;
+    const currentMonth = new Date().getMonth() + 1;
+    const match = s.phenology.find(p => p.months.includes(currentMonth));
+    return match ? match.label : null;
+  }
+
+  function buildSeasonalWidget() {
+    const currentMonth = new Date().getMonth() + 1;
+    const monthName = MONTH_NAMES[currentMonth - 1];
+    const widget = document.getElementById('seasonal-widget');
+
+    const matches = [];
+    const seenNames = new Set();
+    species.forEach(s => {
+      const label = getCurrentPhenologyLabel(s);
+      // Skip if we've already listed this species from a different pin --
+      // e.g. two Kudzu pins shouldn't produce two identical entries here.
+      if (label && !seenNames.has(s.name)) {
+        matches.push({ id: s.id, name: s.name, label });
+        seenNames.add(s.name);
+      }
+    });
+
+    if (matches.length === 0) {
+      widget.innerHTML = `
+        <div class="seasonal-title">This Month at Ridgeway</div>
+        <p class="seasonal-empty">Nothing on the map is flagged as especially active in ${monthName} yet: explore the full field guide below.</p>
+      `;
+      return;
+    }
+
+    const itemsHtml = matches.map(m => `
+      <button type="button" class="seasonal-item" data-target="${m.id}">
+        <span class="seasonal-label">${m.label}</span>${m.name}
+      </button>
+    `).join('');
+
+    widget.innerHTML = `
+      <div class="seasonal-title">This Month at Ridgeway: ${monthName}</div>
+      <div class="seasonal-items">${itemsHtml}</div>
+    `;
+
+    widget.querySelectorAll('.seasonal-item').forEach(btn => {
+      btn.addEventListener('click', () => selectSpecies(btn.dataset.target));
+    });
+  }
+
+  // ---- MAP SETUP ----
+  // Placeholder center between two third-party coordinates for the Ridgeway
+  // Recreation Area (they differ by about 1 km) -- refine once real GPS data
+  // from a visit is available.
+  const map = L.map('map', { zoomControl: false }).setView([34.6497, -84.6050], 15);
+  L.control.zoom({ position: 'bottomright' }).addTo(map);
+
+  // "Find me" / follow-mode location control. Requires HTTPS and browser
+  // location permission -- won't work over file:// or plain http://.
+  // GPS accuracy will vary under tree canopy, same as the recorded trails.
+  L.control.locate({
+    position: 'bottomright',
+    follow: true,
+    setView: 'untilPanOrZoom',
+    keepCurrentZoomLevel: true,
+    drawCircle: true,
+    drawMarker: true,
+    showPopup: false,
+    strings: {
+      title: "Show my location"
+    },
+    locateOptions: {
+      enableHighAccuracy: true
+    }
+  }).addTo(map);
+
+  // Standard OpenStreetMap tiles. NOTE: these tile servers reject requests
+  // that have no "referer" header, which happens when this file is opened
+  // directly by double-clicking it (file://). Serve it from a local server
+  // instead -- e.g. run `python3 -m http.server` in this folder, then visit
+  // http://localhost:8000/ridgeway-map.html -- and the tiles will
+  // load normally. This will also be a non-issue once the site is hosted
+  // online for real.
+  const streetLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 19,
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+  });
+
+  // Esri's free satellite imagery -- no API key required. Useful for a
+  // nature guide since it shows real tree canopy, clearings, and water
+  // rather than a stylized street map.
+  const satelliteLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+    maxZoom: 19,
+    attribution: 'Tiles &copy; Esri - Source: Esri, Maxar, Earthstar Geographics'
+  });
+
+  // Thin white place-name/road labels drawn on top of the satellite layer,
+  // since raw imagery alone has no text on it.
+  const satelliteLabels = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}', {
+    maxZoom: 19,
+    pane: 'shadowPane'
+  });
+
+  // USGS's classic topographic quad-map style -- a free federal service,
+  // no key required. Recognizable to hikers as the traditional USGS topo look.
+  const usgsTopoLayer = L.tileLayer('https://basemap.nationalmap.gov/arcgis/rest/services/USGSTopo/MapServer/tile/{z}/{y}/{x}', {
+    maxZoom: 19,
+    maxNativeZoom: 16,
+    attribution: 'USGS The National Map'
+  });
+
+  // Hiker-oriented basemap built from OSM path data plus contour lines --
+  // shows mapped footpaths/trails as part of its normal styling, regardless
+  // of whether they're tagged as a formal "route." Best odds of showing
+  // this park's actual trails of any layer here.
+  const openTopoLayer = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
+    maxZoom: 17,
+    attribution: 'Map data: &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, <a href="http://viewfinderpanoramas.org">SRTM</a> | Map style: &copy; <a href="https://opentopomap.org">OpenTopoMap</a> (<a href="https://creativecommons.org/licenses/by-sa/3.0/">CC-BY-SA</a>)'
+  });
+
+  // Street map is the default base layer (it is also listed first in the
+  // layer control below). Satellite stays one tap away.
+  streetLayer.addTo(map);
+
+  // ---- COMMUNITY SIGHTINGS (iNaturalist) ----
+  // A separate, optional overlay of real community-submitted observations
+  // near the park, pulled live from iNaturalist's public API. This is kept
+  // distinct from the curated species pins above -- iNaturalist records are
+  // individual sightings (photo + date + observer), not field-guide writeups.
+  // Loads only once, the first time the "Community Sightings" checkbox in
+  // the sidebar is switched on. Nearby pins group into a numbered cluster at
+  // lower zoom levels so the map doesn't get overwhelmed with dots.
+  const sightingsLayer = L.markerClusterGroup({
+    maxClusterRadius: 50,
+    iconCreateFunction: function (cluster) {
+      const count = cluster.getChildCount();
+      return L.divIcon({
+        className: '',
+        html: `<div style="
+          width: 34px; height: 34px;
+          background: #3d6b8a;
+          color: #faf7ef;
+          border-radius: 50%;
+          border: 2.5px solid #faf7ef;
+          display: flex; align-items: center; justify-content: center;
+          font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; font-weight: 600; font-size: 0.85rem;
+          box-shadow: 0 0 0 2px rgba(255,255,255,0.9), 0 0 0 3.5px rgba(0,0,0,0.25), 0 3px 8px rgba(0,0,0,0.5);
+        ">${count}</div>`,
+        iconSize: [34, 34]
+      });
+    }
+  });
+
+  let sightingsLoaded = false;
+  let sightingsEnabled = false;
+
+  // Placeholder box covering both candidate Ridgeway coordinates plus a
+  // buffer -- tighten around the real pin cluster after the first visit.
+  const PARK_BBOX = { swlat: 34.6350, swlng: -84.6250, nelat: 34.6650, nelng: -84.5850 };
+
+  // Buckets used to let visitors filter sightings by broad taxon group.
+  // iNaturalist's "iconic taxon" is more granular than this (e.g. separate
+  // fish, mollusk, and generic-animal categories) -- anything not covered
+  // by a specific bucket below falls into "other".
+  const sightingBucketState = { plants: true, fungi: true, birds: true, mammals: true, herps: true, insects: true, other: true };
+  const sightingMarkersByBucket = { plants: [], fungi: [], birds: [], mammals: [], herps: [], insects: [], other: [] };
+
+  function bucketForIconicTaxon(name) {
+    switch (name) {
+      case 'Aves': return 'birds';
+      case 'Mammalia': return 'mammals';
+      case 'Reptilia':
+      case 'Amphibia': return 'herps';
+      case 'Insecta':
+      case 'Arachnida': return 'insects';
+      case 'Plantae': return 'plants';
+      case 'Fungi': return 'fungi';
+      default: return 'other';
+    }
+  }
+
+  const sightingsNoteEl = document.getElementById('sightings-note');
+  const SIGHTINGS_DEFAULT_NOTE = sightingsNoteEl.textContent;
+
+  function showStatus(message, isError) {
+    sightingsNoteEl.textContent = message;
+    sightingsNoteEl.classList.toggle('is-error', !!isError);
+  }
+
+  function hideStatus() {
+    sightingsNoteEl.textContent = SIGHTINGS_DEFAULT_NOTE;
+    sightingsNoteEl.classList.remove('is-error');
+  }
+
+  function makeSightingIcon() {
+    return L.divIcon({
+      className: '',
+      html: `<div style="
+        width: 16px; height: 16px;
+        background: #3d6b8a;
+        border: 2.5px solid #faf7ef;
+        border-radius: 50%;
+        box-shadow: 0 0 0 1.5px rgba(0,0,0,0.25), 0 2px 6px rgba(0,0,0,0.45);
+      "></div>`,
+      iconSize: [16, 16],
+      iconAnchor: [8, 8],
+      popupAnchor: [0, -8]
+    });
+  }
+
+  function sightingPopupHTML(obs) {
+    const common = obs.taxon?.preferred_common_name || obs.species_guess || 'Unidentified organism';
+    const sci = obs.taxon?.name || '';
+    const dateStr = obs.observed_on_string || obs.observed_on || 'Date unknown';
+    const observer = obs.user?.login || 'iNaturalist user';
+    const obsUrl = obs.uri || `https://www.inaturalist.org/observations/${obs.id}`;
+    const photo = obs.photos && obs.photos[0]
+      ? obs.photos[0].url.replace('square', 'medium')
+      : null;
+
+    return `
+      <div class="popup-card">
+        <div class="category" style="color:#3d6b8a">Community Sighting</div>
+        <h3>${common}</h3>
+        ${sci ? `<p class="sci-name">${sci}</p>` : ''}
+        ${photo ? `<img src="${photo}" alt="${common}" style="width:100%;border-radius:4px;margin-bottom:8px;">` : ''}
+        <p>Observed ${dateStr} by ${observer}.</p>
+        <div class="season"><a href="${obsUrl}" target="_blank" rel="noopener">View on iNaturalist \u2197</a></div>
+      </div>
+    `;
+  }
+
+  // Re-applies the current on/off state and per-bucket checkboxes to the
+  // map without re-fetching -- all sightings are kept in memory once loaded.
+  function applySightingFilters() {
+    sightingsLayer.clearLayers();
+    if (!sightingsEnabled) return;
+    Object.keys(sightingBucketState).forEach(bucket => {
+      if (sightingBucketState[bucket]) {
+        sightingMarkersByBucket[bucket].forEach(m => sightingsLayer.addLayer(m));
+      }
+    });
+  }
+
+  // iNaturalist returns at most 200 results per request, so sightings are
+  // pulled in pages, newest first. MAX_SIGHTING_PAGES keeps the total bounded
+  // (5 pages = up to 1,000 sightings) so a busy area can't overwhelm the map.
+  const SIGHTINGS_PER_PAGE = 200;
+  const MAX_SIGHTING_PAGES = 5;
+
+  async function fetchCommunitySightings() {
+    showStatus('Loading community sightings\u2026');
+
+    const baseUrl = `https://api.inaturalist.org/v1/observations?swlat=${PARK_BBOX.swlat}&swlng=${PARK_BBOX.swlng}&nelat=${PARK_BBOX.nelat}&nelng=${PARK_BBOX.nelng}&quality_grade=research&captive=false&per_page=${SIGHTINGS_PER_PAGE}&order=desc&order_by=observed_on`;
+
+    let loaded = 0;
+    let total = 0;
+    let failed = false;
+
+    try {
+      for (let page = 1; page <= MAX_SIGHTING_PAGES; page++) {
+        const res = await fetch(`${baseUrl}&page=${page}`);
+        if (!res.ok) throw new Error('Network response was not ok');
+        const data = await res.json();
+        const results = data.results || [];
+        total = data.total_results || total;
+
+        results.forEach(obs => {
+          const coords = obs.geojson && obs.geojson.coordinates;
+          if (!coords) return;
+          const [lng, lat] = coords;
+          const marker = L.marker([lat, lng], { icon: makeSightingIcon() })
+            .bindPopup(sightingPopupHTML(obs));
+          const bucket = bucketForIconicTaxon(obs.taxon?.iconic_taxon_name);
+          sightingMarkersByBucket[bucket].push(marker);
+        });
+        loaded += results.length;
+
+        if (results.length < SIGHTINGS_PER_PAGE || loaded >= total) break;
+        showStatus(`Loading community sightings (${loaded} so far)\u2026`);
+      }
+    } catch (err) {
+      failed = true;
+    }
+
+    // Nothing came back at all: leave sightingsLoaded false so a retry is possible.
+    if (failed && loaded === 0) {
+      showStatus('Could not load community sightings: check your connection and try again.', true);
+      return;
+    }
+
+    sightingsLoaded = true;
+    applySightingFilters();
+
+    if (loaded === 0) {
+      showStatus('No research-grade sightings found nearby yet.');
+    } else if (failed) {
+      showStatus(`Loaded ${loaded} community sightings, but the connection dropped, so some may be missing.`, true);
+    } else if (total > loaded) {
+      showStatus(`Showing the ${loaded} most recent of ${total} community sightings.`);
+      setTimeout(hideStatus, 5000);
+    } else {
+      showStatus(`Loaded ${loaded} community sighting${loaded === 1 ? '' : 's'}.`);
+      setTimeout(hideStatus, 3500);
+    }
+  }
+
+  const sightingsMasterToggle = document.getElementById('sightings-master-toggle');
+  const sightingsSubFilters = document.getElementById('sightings-sub-filters');
+
+  // Browsers restore checkbox states on page load/refresh based on what was
+  // last clicked, independent of the HTML's declared default -- this is what
+  // caused the master toggle to visually appear checked while the page's
+  // actual data state (sightingsEnabled = false) hadn't caught up, so no
+  // pins showed until it was toggled off and back on. Forcing all of these
+  // checkboxes to known values here keeps what's on screen honest.
+  sightingsMasterToggle.checked = false;
+  sightingsSubFilters.classList.remove('visible');
+  sightingsSubFilters.querySelectorAll('input[type="checkbox"]').forEach(cb => {
+    cb.checked = true;
+    sightingBucketState[cb.dataset.bucket] = true;
+  });
+
+  // The sidebar checkbox just changes actual layer presence on the map --
+  // all the real logic (fetching, sub-filter visibility, syncing the layer
+  // control's own checkbox) happens in the overlayadd/overlayremove
+  // handlers below, so both entry points stay in sync automatically.
+  sightingsMasterToggle.addEventListener('change', (e) => {
+    if (e.target.checked) {
+      map.addLayer(sightingsLayer);
+    } else {
+      map.removeLayer(sightingsLayer);
+    }
+  });
+
+  sightingsSubFilters.querySelectorAll('input[type="checkbox"]').forEach(cb => {
+    cb.addEventListener('change', (e) => {
+      sightingBucketState[e.target.dataset.bucket] = e.target.checked;
+      applySightingFilters();
+    });
+  });
+
+  const layerControl = L.control.layers({
+    "Street map": streetLayer,
+    "Satellite": L.layerGroup([satelliteLayer, satelliteLabels]),
+    "OpenTopoMap": openTopoLayer,
+    "USGS Topo": usgsTopoLayer
+  }, null, { position: 'topright', collapsed: window.matchMedia('(max-width: 760px)').matches }).addTo(map);
+
+  // Registered here, before the Trails/Areas overlays are added further
+  // down, so it appears between the base layers and those in the control.
+  layerControl.addOverlay(sightingsLayer, "Community Sightings (iNaturalist)");
+
+  map.on('overlayadd', (e) => {
+    if (e.layer !== sightingsLayer) return;
+    sightingsEnabled = true;
+    sightingsMasterToggle.checked = true;
+    sightingsSubFilters.classList.add('visible');
+    if (!sightingsLoaded) {
+      fetchCommunitySightings();
+    } else {
+      applySightingFilters();
+    }
+  });
+
+  map.on('overlayremove', (e) => {
+    if (e.layer !== sightingsLayer) return;
+    sightingsEnabled = false;
+    sightingsMasterToggle.checked = false;
+    sightingsSubFilters.classList.remove('visible');
+    hideStatus();
+    applySightingFilters();
+  });
+
+
+  // ---- MOBILE DRAWER / BOTTOM SHEET ----
+  const sidebarEl = document.querySelector('.sidebar');
+  const backdropEl = document.getElementById('drawer-backdrop');
+  const openListBtn = document.getElementById('open-list-btn');
+  const closeListBtn = document.getElementById('close-list-btn');
+
+  function openSidebarDrawer() {
+    sidebarEl.classList.add('open');
+    backdropEl.classList.add('visible');
+  }
+
+  function closeSidebarDrawer() {
+    sidebarEl.classList.remove('open');
+    backdropEl.classList.remove('visible');
+  }
+
+  openListBtn.addEventListener('click', openSidebarDrawer);
+  closeListBtn.addEventListener('click', closeSidebarDrawer);
+  backdropEl.addEventListener('click', closeSidebarDrawer);
+
+  function makeIcon(category, active, status) {
+    const color = categoryMeta[category].color;
+    const size = active ? 22 : 16;
+    const invasiveDot = status === 'invasive'
+      ? `<div style="
+          position: absolute; top: -2px; right: -2px;
+          width: 9px; height: 9px;
+          background: ${statusMeta.invasive.color};
+          border: 1.5px solid #faf7ef;
+          border-radius: 50%;
+          box-shadow: 0 0 0 1px rgba(0,0,0,0.3);
+        "></div>`
+      : '';
+    return L.divIcon({
+      className: '',
+      html: `<div style="position: relative; width: ${size}px; height: ${size}px;">
+        <div style="
+          width: 100%; height: 100%;
+          background: ${color};
+          border: 2px solid #faf7ef;
+          border-radius: 50% 50% 50% 0;
+          transform: rotate(-45deg);
+          box-shadow: 0 0 0 1.5px rgba(0,0,0,0.3), 0 3px 8px rgba(0,0,0,0.5);
+        "></div>
+        ${invasiveDot}
+      </div>`,
+      iconSize: [size, size],
+      iconAnchor: [size / 2, size],
+      popupAnchor: [0, -size]
+    });
+  }
+
+  const markerById = {};
+  const rowById = {};
+  let activeId = null;
+
+  // Curated species pins cluster together at low zoom, same behavior as the
+  // Community Sightings layer, so the map isn't overwhelmed with icons when
+  // zoomed out. Uses the site's forest green so these clusters read as
+  // "official guide" content, distinct from the blue Community Sightings
+  // clusters.
+  const speciesClusterGroup = L.markerClusterGroup({
+    maxClusterRadius: 45,
+    iconCreateFunction: function (cluster) {
+      const count = cluster.getChildCount();
+      return L.divIcon({
+        className: '',
+        html: `<div style="
+          width: 30px; height: 30px;
+          background: var(--forest);
+          color: #faf7ef;
+          border-radius: 50%;
+          border: 2px solid #faf7ef;
+          display: flex; align-items: center; justify-content: center;
+          font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; font-weight: 600; font-size: 0.8rem;
+          box-shadow: 0 0 0 2px rgba(255,255,255,0.9), 0 0 0 3.5px rgba(0,0,0,0.25), 0 3px 8px rgba(0,0,0,0.5);
+        ">${count}</div>`,
+        iconSize: [30, 30]
+      });
+    }
+  });
+  speciesClusterGroup.addTo(map);
+
+  species.forEach(s => {
+    const marker = L.marker([s.lat, s.lng], { icon: makeIcon(s.category, false, s.status) });
+    marker.on('click', () => selectSpecies(s.id));
+    speciesClusterGroup.addLayer(marker);
+    markerById[s.id] = marker;
+  });
+
+  // ---- TRAIL TRACKS ----
+  // Real GPS tracks recorded on-site, drawn as trail lines. Add new trails
+  // here the same way as this one: a name, an array of [lat, lng] points,
+  // a color if you want it to differ from the default trail green, and
+  // distance/elevation stats computed from the GPX's recorded elevation data.
+  const trails = [
+    // No recorded trails yet -- add one here once a real GPX track of the
+    // Tumbling Waters Nature Trail (or any other trail) has been walked and
+    // uploaded. See the North Hall Park Field Guide's trails array for
+    // the exact field format to follow.
+  ];
+
+
+  const trailLayers = {};
+  trails.forEach(t => {
+    const line = L.polyline(t.coords, {
+      color: t.color,
+      weight: 3,
+      opacity: 0.9,
+      dashArray: "4,5",
+      lineJoin: "round"
+    });
+    line.bindTooltip(`${t.name} (${t.distance})`, { sticky: true });
+    line.addTo(map);
+    trailLayers[t.name] = line;
+    layerControl.addOverlay(line, `Trail: ${t.name} (${t.distance})`);
+  });
+
+  const trailsListEl = document.getElementById('trails-list');
+  trailsListEl.innerHTML = trails.map(t => `
+    <div class="trail-item">
+      <div class="trail-name">${t.name}</div>
+      <div class="trail-stats">${t.distance} \u00b7 ${t.elevGain} elevation gain \u00b7 ${t.elevRange}</div>
+    </div>
+  `).join('');
+
+  // ---- ZONES ----
+  // Shaded, labeled areas -- for boundaries of a place (a garden, a habitat
+  // zone, a field) rather than a walked path. Add new zones the same way:
+  // a name, a border color, an optional fillColor (defaults to the border
+  // color if omitted), and a closed array of [lat, lng] boundary points.
+  const zones = [
+    // No shaded areas yet -- add one once real boundary coordinates come
+    // in (see the North Hall Park Field Guide for the pattern: a visitor
+    // can mark corners with personal pins and relay the coordinates).
+  ];
+
+
+  // Softens sharp polygon corners into gentle curves using Chaikin's
+  // corner-cutting algorithm -- works on any closed shape, whether it's a
+  // simple 4-corner boundary or a fully-traced 37-point walked perimeter.
+  // Each pass replaces every corner with two points pulled slightly toward
+  // its neighbors; more passes = rounder, but also slightly smaller.
+  function smoothClosedShape(points, iterations = 2, ratio = 0.1) {
+    let pts = points;
+    for (let iter = 0; iter < iterations; iter++) {
+      const next = [];
+      const n = pts.length;
+      for (let i = 0; i < n; i++) {
+        const p0 = pts[i];
+        const p1 = pts[(i + 1) % n];
+        next.push(
+          [p0[0] + (p1[0] - p0[0]) * ratio, p0[1] + (p1[1] - p0[1]) * ratio],
+          [p0[0] + (p1[0] - p0[0]) * (1 - ratio), p0[1] + (p1[1] - p0[1]) * (1 - ratio)]
+        );
+      }
+      pts = next;
+    }
+    return pts;
+  }
+
+  zones.forEach(z => {
+    const polygon = L.polygon(smoothClosedShape(z.coords), {
+      color: z.color,
+      weight: 2.5,
+      opacity: 0.95,
+      fillColor: z.fillColor || z.color,
+      fillOpacity: 0.35
+    });
+    polygon.addTo(map);
+    layerControl.addOverlay(polygon, `Area: ${z.name}`);
+  });
+
+  const areasListEl = document.getElementById('areas-list');
+  areasListEl.innerHTML = zones.map(z => `
+    <div class="trail-item" style="border-left-color:${z.color}">
+      <div class="trail-name">${z.name}</div>
+    </div>
+  `).join('');
+
+  // ---- SIDEBAR BUILD ----
+  const container = document.getElementById('sidebar-categories');
+
+  // Three independent, cross-cutting filters: category (tree/plant/animal),
+  // habitat (wetland/upland forest/trail edge/open field), and native status
+  // (native/introduced/invasive). A pin only shows when ALL THREE of its
+  // category, habitat, and status are currently checked.
+  const categoryState = {};
+  const habitatState = {};
+  const statusState = {};
+  Object.keys(categoryMeta).forEach(cat => { categoryState[cat] = true; });
+  Object.keys(habitatMeta).forEach(hab => { habitatState[hab] = true; });
+  Object.keys(statusMeta).forEach(st => { statusState[st] = true; });
+
+  function applyCombinedFilters() {
+    species.forEach(s => {
+      // Habitat/status filters only apply to entries that actually have those
+      // fields -- a landmark with no habitat or status should never be hidden
+      // by those filters, only by its own category checkbox.
+      const categoryOk = categoryState[s.category];
+      const habitatOk = !s.habitat || habitatState[s.habitat];
+      const statusOk = !s.status || statusState[s.status];
+      const visible = categoryOk && habitatOk && statusOk;
+      if (visible) {
+        speciesClusterGroup.addLayer(markerById[s.id]);
+        rowById[s.id].style.display = '';
+      } else {
+        speciesClusterGroup.removeLayer(markerById[s.id]);
+        rowById[s.id].style.display = 'none';
+        if (activeId === s.id) clearSelection();
+      }
+    });
+  }
+
+  Object.keys(categoryMeta).forEach(cat => {
+    const meta = categoryMeta[cat];
+    const items = species.filter(s => s.category === cat);
+
+    const block = document.createElement('div');
+    block.className = 'category-block';
+
+    const head = document.createElement('label');
+    head.className = 'category-head';
+    head.innerHTML = `
+      <input type="checkbox" checked autocomplete="off" data-category="${cat}">
+      <span class="dot" style="background:${meta.color}"></span>
+      <span class="label">${meta.label}</span>
+      <span class="count">${items.length}</span>
+    `;
+    block.appendChild(head);
+
+    const list = document.createElement('div');
+    list.className = 'species-list';
+    list.id = `list-${cat}`;
+
+    items.forEach(s => {
+      const row = document.createElement('button');
+      row.className = 'species-row';
+      row.type = 'button';
+      row.innerHTML = `<span class="common">${s.name}</span><span class="sci">${s.sciName}</span>`;
+      row.addEventListener('click', () => selectSpecies(s.id));
+      rowById[s.id] = row;
+      list.appendChild(row);
+    });
+
+    block.appendChild(list);
+    container.appendChild(block);
+
+    head.querySelector('input').addEventListener('change', (e) => {
+      categoryState[cat] = e.target.checked;
+      applyCombinedFilters();
+    });
+  });
+
+  // ---- HABITAT FILTER BUILD ----
+  const habitatFiltersContainer = document.getElementById('habitat-filters');
+
+  Object.keys(habitatMeta).forEach(hab => {
+    const meta = habitatMeta[hab];
+    const label = document.createElement('label');
+    label.className = 'filter-check';
+    label.innerHTML = `
+      <input type="checkbox" checked autocomplete="off" data-habitat="${hab}">
+      <span class="dot" style="background:${meta.color}"></span>
+      ${meta.label}
+    `;
+    label.querySelector('input').addEventListener('change', (e) => {
+      habitatState[hab] = e.target.checked;
+      applyCombinedFilters();
+    });
+    habitatFiltersContainer.appendChild(label);
+  });
+
+  // ---- NATIVE STATUS FILTER BUILD ----
+  const statusFiltersContainer = document.getElementById('status-filters');
+
+  Object.keys(statusMeta).forEach(st => {
+    const meta = statusMeta[st];
+    const label = document.createElement('label');
+    label.className = 'filter-check';
+    label.innerHTML = `
+      <input type="checkbox" checked autocomplete="off" data-status="${st}">
+      <span class="dot" style="background:${meta.color}"></span>
+      ${meta.label}
+    `;
+    label.querySelector('input').addEventListener('change', (e) => {
+      statusState[st] = e.target.checked;
+      applyCombinedFilters();
+    });
+    statusFiltersContainer.appendChild(label);
+  });
+
+  // ---- SELECTION / INFO PANEL ----
+  const infoPanel = document.getElementById('info-panel');
+
+  function clearSelection() {
+    if (activeId) {
+      const prev = species.find(s => s.id === activeId);
+      markerById[activeId].setIcon(makeIcon(prev.category, false, prev.status));
+      rowById[activeId].classList.remove('active');
+    }
+    activeId = null;
+    infoPanel.classList.remove('open');
+    infoPanel.innerHTML = '<p class="info-empty">Select a pin on the map or a species from the list to see its field notes here.</p>';
+  }
+
+  function selectSpecies(id) {
+    if (activeId === id) return;
+    if (activeId) {
+      const prev = species.find(s => s.id === activeId);
+      markerById[activeId].setIcon(makeIcon(prev.category, false, prev.status));
+      rowById[activeId].classList.remove('active');
+    }
+    const s = species.find(sp => sp.id === id);
+    activeId = id;
+    markerById[id].setIcon(makeIcon(s.category, true, s.status));
+    rowById[id].classList.add('active');
+
+    map.panTo([s.lat, s.lng]);
+    renderInfoPanel(s);
+    closeSidebarDrawer();
+    infoPanel.classList.add('open');
+  }
+
+  function renderInfoPanel(s) {
+    const meta = categoryMeta[s.category];
+
+    // Build tabs dynamically -- only include a tab if the species data has
+    // the relevant field. This keeps e.g. a rabbit or bird from showing an
+    // empty "Uses" or "Caution" tab.
+    const tabs = [];
+
+    tabs.push({
+      key: 'overview',
+      label: 'Overview',
+      html: `
+        ${getCurrentPhenologyLabel(s) ? `<div class="in-season-badge">\uD83C\uDF31 In season now: ${getCurrentPhenologyLabel(s)}</div>` : ''}
+        <p>${s.overview}</p>
+        ${s.funFact ? `<p><strong>Fun fact:</strong> ${s.funFact}</p>` : ''}
+        ${s.season ? `<div class="season">\u{1F553} ${s.season}</div>` : ''}
+      `
+    });
+
+    if (s.ecology) {
+      let ecologyHtml = `<p>${s.ecology}</p>`;
+      if (s.nativeAlternative) {
+        ecologyHtml += `<div class="native-alt-box"><strong>Native alternative:</strong> ${s.nativeAlternative}</div>`;
+      }
+      tabs.push({
+        key: 'ecology',
+        label: 'Ecology',
+        html: ecologyHtml
+      });
+    }
+
+    if (s.significance) {
+      tabs.push({
+        key: 'significance',
+        label: 'History',
+        html: `<p>${s.significance}</p>`
+      });
+    }
+
+    if (s.edible || s.medicinal) {
+      let usesHtml = '';
+      if (s.edible) usesHtml += `<h4>Edible uses</h4><p>${s.edible}</p>`;
+      if (s.medicinal) usesHtml += `<h4>Medicinal / traditional uses</h4><p>${s.medicinal}</p>`;
+      usesHtml += `<div class="id-warning">Always be 100% certain of your identification before eating or preparing any wild plant: some species have toxic lookalikes. This information is for educational purposes only and isn't medical advice; check with a knowledgeable forager's guide or a healthcare provider before use.</div>`;
+      tabs.push({ key: 'uses', label: 'Uses', html: usesHtml });
+    }
+
+    if (s.caution) {
+      tabs.push({
+        key: 'caution',
+        label: '\u26A0 Caution',
+        html: `<div class="caution-box">${s.caution}</div>`,
+        isCaution: true
+      });
+    }
+
+    if (s.connections && s.connections.length) {
+      const itemsHtml = s.connections.map(c => {
+        const target = species.find(sp => sp.id === c.id);
+        if (!target) return '';
+        return `
+          <button type="button" class="connection-item" data-target="${target.id}">
+            <div class="connection-target">${target.name} <span class="connection-arrow">\u2192</span></div>
+            <div class="connection-desc">${c.relationship}</div>
+          </button>
+        `;
+      }).join('');
+      tabs.push({
+        key: 'connections',
+        label: 'Connections',
+        html: `<div class="connections-list">${itemsHtml}</div>`
+      });
+    }
+
+    const tabButtons = tabs.map((t, i) => `
+      <button type="button" class="info-tab-btn ${i === 0 ? 'active' : ''} ${t.isCaution ? 'is-caution' : ''}" data-tab="${t.key}">${t.label}</button>
+    `).join('');
+
+    const tabPanels = tabs.map((t, i) => `
+      <div class="info-tab-panel ${i === 0 ? 'active' : ''}" data-tab-panel="${t.key}">${t.html}</div>
+    `).join('');
+
+    const badgeRowHtml = (s.habitat && s.status) ? `
+        <div class="badge-row">
+          <div class="habitat-badge" style="background:${habitatMeta[s.habitat].color}22; color:${habitatMeta[s.habitat].color};">${habitatMeta[s.habitat].label}</div>
+          <div class="habitat-badge" style="background:${statusMeta[s.status].color}22; color:${statusMeta[s.status].color};">${statusMeta[s.status].label}</div>
+        </div>` : '';
+
+    const learnMoreHtml = (s.learnMoreLinks && s.learnMoreLinks.length) ? `
+        <div class="learn-more-row">
+          <span class="learn-more-label">Learn more:</span>
+          ${s.learnMoreLinks.map(l => `<a href="${l.url}" target="_blank" rel="noopener">${l.label} \u2197</a>`).join('')}
+        </div>` : '';
+
+    infoPanel.innerHTML = `
+      <div class="info-content">
+        <button type="button" class="info-close-btn" id="info-close-btn">Close &#10005;</button>
+        <div class="category-tag" style="color:${meta.color}">${meta.label.replace(/s$/, '')}</div>
+        <h2>${s.name}</h2>
+        <p class="sci-name">${s.sciName}</p>
+        ${badgeRowHtml}
+        <div class="info-tabs">${tabButtons}</div>
+        <div class="info-tab-body">${tabPanels}</div>
+        ${learnMoreHtml}
+      </div>
+    `;
+
+    infoPanel.querySelector('#info-close-btn').addEventListener('click', clearSelection);
+
+    infoPanel.querySelectorAll('.connection-item').forEach(btn => {
+      btn.addEventListener('click', () => selectSpecies(btn.dataset.target));
+    });
+
+    infoPanel.querySelectorAll('.info-tab-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const key = btn.dataset.tab;
+        infoPanel.querySelectorAll('.info-tab-btn').forEach(b => b.classList.toggle('active', b === btn));
+        infoPanel.querySelectorAll('.info-tab-panel').forEach(p => {
+          p.classList.toggle('active', p.dataset.tabPanel === key);
+        });
+      });
+    });
+  }
+
+  // ---- MY PINS (visitor-saved, local to this device) ----
+  // Shown in the exported text file so visitors know where to send a
+  // submission for consideration.
+  const SUBMISSION_EMAIL = "overalls2@protonmail.com";
+
+  const contactEmailLink = document.getElementById('contact-email-link');
+  contactEmailLink.href = `mailto:${SUBMISSION_EMAIL}`;
+  contactEmailLink.textContent = SUBMISSION_EMAIL;
+
+  const MY_PINS_KEY = 'ridgeway_my_pins';
+
+  // Identifiers that mark data as belonging to this guide. Save files carry
+  // APP_ID, and every pin id starts with PIN_ID_PREFIX. Upload accepts only
+  // files and pins that carry them, so exports from another field guide
+  // (which use different ids) are rejected.
+  const APP_ID = 'ridgeway-recreation-area-field-guide';
+  const PIN_ID_PREFIX = 'rwpin_';
+
+  function loadMyPins() {
+    try {
+      return JSON.parse(localStorage.getItem(MY_PINS_KEY)) || [];
+    } catch (e) {
+      return [];
+    }
+  }
+
+  function saveMyPinsToStorage() {
+    localStorage.setItem(MY_PINS_KEY, JSON.stringify(myPins));
+  }
+
+  let myPins = loadMyPins();
+  const myPinsLayer = L.layerGroup().addTo(map);
+
+  const myPinCategoryMeta = {
+    plant:  { label: "Plant",    color: categoryMeta.plant.color },
+    animal: { label: "Animal",   color: categoryMeta.animal.color },
+    unsure: { label: "Not Sure", color: "#8a8272" }
+  };
+
+  function makeMyPinIcon(category) {
+    return L.divIcon({
+      className: '',
+      html: `<div style="
+        width: 16px; height: 16px;
+        background: #e8342a;
+        border: 2.5px solid #faf7ef;
+        border-radius: 50%;
+        box-shadow: 0 0 0 1.5px rgba(0,0,0,0.25), 0 2px 6px rgba(0,0,0,0.45);
+      "></div>`,
+      iconSize: [16, 16],
+      iconAnchor: [8, 8],
+      popupAnchor: [0, -8]
+    });
+  }
+
+  function pinToText(p) {
+    const meta = myPinCategoryMeta[p.category] || myPinCategoryMeta.unsure;
+    return [
+      "Ridgeway Recreation Area Field Guide -- Visitor Pin Submission",
+      "------------------------------------------------------",
+      `Name/Guess: ${p.name || '(not provided)'}`,
+      `Category: ${meta.label}`,
+      `Notes: ${p.notes || '(none)'}`,
+      `Coordinates: ${p.lat.toFixed(6)}, ${p.lng.toFixed(6)}`,
+      `Date saved: ${new Date(p.createdAt).toLocaleString()}`,
+      "",
+      "If you have a photo, please attach it to your email along with this file.",
+      `Send to: ${SUBMISSION_EMAIL}`
+    ].join('\n');
+  }
+
+  async function downloadFile(filename, content, mimeType, typeDescription, extensions) {
+    // Chromium browsers (Chrome, Edge) support a real "choose where to save"
+    // dialog. Safari and Firefox don't implement this API at all, so we
+    // feature-detect and fall back to a normal download for everyone else.
+    if (window.showSaveFilePicker) {
+      try {
+        const handle = await window.showSaveFilePicker({
+          suggestedName: filename,
+          types: [{ description: typeDescription, accept: { [mimeType]: extensions } }]
+        });
+        const writable = await handle.createWritable();
+        await writable.write(content);
+        await writable.close();
+        return;
+      } catch (err) {
+        // AbortError means the person canceled the picker themselves --
+        // respect that and don't force a fallback download on top of it.
+        if (err.name === 'AbortError') return;
+        // Any other error (rare): fall through to the standard approach below.
+      }
+    }
+
+    const blob = new Blob([content], { type: mimeType });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }
+
+  function downloadTextFile(filename, text) {
+    return downloadFile(filename, text, 'text/plain', 'Text file', ['.txt']);
+  }
+
+  function exportSinglePin(id) {
+    const p = myPins.find(pin => pin.id === id);
+    if (!p) return;
+    downloadTextFile(`ridgeway-pin-${id}.txt`, pinToText(p));
+  }
+
+  function exportAllPins() {
+    const text = myPins.map(pinToText).join('\n\n========================================\n\n');
+    downloadTextFile('ridgeway-pins-all.txt', text);
+  }
+
+  function deleteMyPin(id) {
+    myPins = myPins.filter(p => p.id !== id);
+    saveMyPinsToStorage();
+    renderMyPins();
+  }
+
+  function myPinPopupHTML(p) {
+    const meta = myPinCategoryMeta[p.category] || myPinCategoryMeta.unsure;
+    return `
+      <div class="popup-card">
+        <div class="category" style="color:${meta.color}">Your Pin - Unverified</div>
+        <h3>${p.name || 'Unnamed'}</h3>
+        <p class="sci-name">${meta.label}</p>
+        ${p.notes ? `<p>${p.notes}</p>` : ''}
+        <div class="season">
+          <a href="#" class="mypin-popup-edit" data-id="${p.id}">Edit</a>
+          &nbsp;&middot;&nbsp;
+          <a href="#" class="mypin-popup-export" data-id="${p.id}">Download for email</a>
+          &nbsp;&middot;&nbsp;
+          <a href="#" class="mypin-popup-delete" data-id="${p.id}">Delete</a>
+        </div>
+      </div>
+    `;
+  }
+
+  function renderMyPins() {
+    myPinsLayer.clearLayers();
+    myPins.forEach(p => {
+      const marker = L.marker([p.lat, p.lng], { icon: makeMyPinIcon(p.category) });
+      marker.bindPopup(myPinPopupHTML(p));
+      marker.on('popupopen', () => {
+        document.querySelectorAll('.mypin-popup-edit').forEach(el => {
+          el.addEventListener('click', (e) => { e.preventDefault(); map.closePopup(); openEditPinModal(el.dataset.id); });
+        });
+        document.querySelectorAll('.mypin-popup-export').forEach(el => {
+          el.addEventListener('click', (e) => { e.preventDefault(); exportSinglePin(el.dataset.id); });
+        });
+        document.querySelectorAll('.mypin-popup-delete').forEach(el => {
+          el.addEventListener('click', (e) => { e.preventDefault(); map.closePopup(); deleteMyPin(el.dataset.id); });
+        });
+      });
+      marker.addTo(myPinsLayer);
+    });
+    renderMyPinsList();
+  }
+
+  function renderMyPinsList() {
+    const el = document.getElementById('mypins-list');
+    const exportAllBtn = document.getElementById('mypins-export-all-btn');
+    if (myPins.length === 0) {
+      el.innerHTML = '<p class="info-empty">No personal pins saved yet.</p>';
+      exportAllBtn.style.display = 'none';
+      return;
+    }
+    exportAllBtn.style.display = myPins.length > 1 ? 'inline-block' : 'none';
+    el.innerHTML = myPins.map(p => {
+      const meta = myPinCategoryMeta[p.category] || myPinCategoryMeta.unsure;
+      return `
+        <div class="trail-item" style="border-left-color:${meta.color}">
+          <div class="trail-name">${p.name || 'Unnamed'} <span style="font-weight:400; font-style:italic; color:#a9baa1;">(${meta.label})</span></div>
+          <div class="trail-stats" style="display:flex; gap:12px; margin-top:5px;">
+            <button type="button" class="mypin-list-edit" data-id="${p.id}" style="background:none; border:none; color:#b7c4ae; cursor:pointer; padding:0; font-size:0.78rem; text-decoration:underline;">Edit</button>
+            <button type="button" class="mypin-list-export" data-id="${p.id}" style="background:none; border:none; color:#e0ac4f; cursor:pointer; padding:0; font-size:0.78rem; text-decoration:underline;">Download</button>
+            <button type="button" class="mypin-list-delete" data-id="${p.id}" style="background:none; border:none; color:#e0a58f; cursor:pointer; padding:0; font-size:0.78rem; text-decoration:underline;">Delete</button>
+          </div>
+        </div>
+      `;
+    }).join('');
+
+    el.querySelectorAll('.mypin-list-edit').forEach(btn => {
+      btn.addEventListener('click', () => openEditPinModal(btn.dataset.id));
+    });
+    el.querySelectorAll('.mypin-list-export').forEach(btn => {
+      btn.addEventListener('click', () => exportSinglePin(btn.dataset.id));
+    });
+    el.querySelectorAll('.mypin-list-delete').forEach(btn => {
+      btn.addEventListener('click', () => deleteMyPin(btn.dataset.id));
+    });
+  }
+
+  document.getElementById('mypins-export-all-btn').addEventListener('click', exportAllPins);
+
+  // ---- SAVE & CONTINUE LATER (JSON round-trip, separate from the email export) ----
+  const mypinsUploadStatus = document.getElementById('mypins-upload-status');
+
+  function showUploadStatus(message, isError) {
+    mypinsUploadStatus.textContent = message;
+    mypinsUploadStatus.classList.toggle('is-error', !!isError);
+  }
+
+  function exportMyDataFile() {
+    const payload = {
+      app: "Ridgeway Recreation Area Field Guide",
+      appId: APP_ID,
+      exportedAt: new Date().toISOString(),
+      pins: myPins
+    };
+    downloadFile(
+      'ridgeway-my-pins.json',
+      JSON.stringify(payload, null, 2),
+      'application/json',
+      'JSON save file',
+      ['.json']
+    );
+  }
+
+  function handleMyDataUpload(file) {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      let data;
+      try {
+        data = JSON.parse(e.target.result);
+      } catch (err) {
+        showUploadStatus('Could not read that file: make sure it\'s a save file exported from this app.', true);
+        return;
+      }
+      if (!data || Array.isArray(data) || data.appId !== APP_ID || !Array.isArray(data.pins)) {
+        showUploadStatus('That file doesn\'t look like a Ridgeway save file. Only files exported from this guide can be uploaded.', true);
+        return;
+      }
+      const incoming = data.pins;
+      const existingIds = new Set(myPins.map(p => p.id));
+      let addedCount = 0;
+      let duplicateCount = 0;
+      let invalidCount = 0;
+      incoming.forEach(p => {
+        const valid = p && typeof p.id === 'string' && p.id.startsWith(PIN_ID_PREFIX) &&
+          typeof p.lat === 'number' && typeof p.lng === 'number';
+        if (!valid) {
+          invalidCount++;
+        } else if (existingIds.has(p.id)) {
+          duplicateCount++;
+        } else {
+          myPins.push(p);
+          existingIds.add(p.id);
+          addedCount++;
+        }
+      });
+      saveMyPinsToStorage();
+      renderMyPins();
+      showUploadStatus(
+        `Added ${addedCount} pin${addedCount === 1 ? '' : 's'}.` +
+        (duplicateCount > 0 ? ` ${duplicateCount} were already saved and skipped.` : '') +
+        (invalidCount > 0 ? ` ${invalidCount} did not belong to this guide and were skipped.` : '')
+      );
+    };
+    reader.readAsText(file);
+  }
+
+  document.getElementById('mypins-export-data-btn').addEventListener('click', exportMyDataFile);
+
+  const mypinsUploadInput = document.getElementById('mypins-upload-input');
+  document.getElementById('mypins-upload-data-btn').addEventListener('click', () => mypinsUploadInput.click());
+  mypinsUploadInput.addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (file) handleMyDataUpload(file);
+    e.target.value = ''; // allow re-uploading the same file again later
+  });
+
+  // ---- HELP MODAL ----
+  const helpModal = document.getElementById('help-modal');
+  const helpBackdrop = document.getElementById('help-backdrop');
+
+  function openHelpModal() {
+    helpModal.classList.add('open');
+    helpBackdrop.classList.add('visible');
+  }
+
+  function closeHelpModal() {
+    helpModal.classList.remove('open');
+    helpBackdrop.classList.remove('visible');
+  }
+
+  document.getElementById('open-help-btn').addEventListener('click', openHelpModal);
+  document.getElementById('help-close-btn').addEventListener('click', closeHelpModal);
+  helpBackdrop.addEventListener('click', closeHelpModal);
+
+  // ---- ADD-PIN MODAL ----
+  let pendingPinLatLng = null;
+  let pendingPinGpsLatLng = null;
+  let pinLocationMode = 'longpress';
+  let selectedMyPinCategory = 'unsure';
+
+  const mypinModal = document.getElementById('mypin-modal');
+  const mypinBackdrop = document.getElementById('mypin-backdrop');
+  const mypinCoordsEl = document.getElementById('mypin-coords');
+  const mypinNameInput = document.getElementById('mypin-name-input');
+  const mypinNotesInput = document.getElementById('mypin-notes-input');
+  const mypinCatButtons = document.querySelectorAll('#mypin-category-choices .mypin-cat-btn');
+  const mypinLocButtons = document.querySelectorAll('#mypin-location-choices .mypin-cat-btn');
+
+  function updateMyPinCategoryButtons() {
+    mypinCatButtons.forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.cat === selectedMyPinCategory);
+    });
+  }
+
+  mypinCatButtons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      selectedMyPinCategory = btn.dataset.cat;
+      updateMyPinCategoryButtons();
+    });
+  });
+
+  function updateMyPinLocationButtons() {
+    mypinLocButtons.forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.loc === pinLocationMode);
+    });
+  }
+
+  function refreshMyPinCoordsDisplay() {
+    if (pinLocationMode === 'gps') {
+      if (pendingPinGpsLatLng) {
+        mypinCoordsEl.textContent = `${pendingPinGpsLatLng.lat.toFixed(5)}, ${pendingPinGpsLatLng.lng.toFixed(5)} (your GPS location)`;
+      } else {
+        mypinCoordsEl.textContent = 'Getting your GPS location\u2026';
+      }
+    } else {
+      mypinCoordsEl.textContent = `${pendingPinLatLng.lat.toFixed(5)}, ${pendingPinLatLng.lng.toFixed(5)} (where you pressed)`;
+    }
+  }
+
+  mypinLocButtons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      pinLocationMode = btn.dataset.loc;
+      updateMyPinLocationButtons();
+      if (pinLocationMode === 'gps' && !pendingPinGpsLatLng) {
+        refreshMyPinCoordsDisplay();
+        if (!navigator.geolocation) {
+          mypinCoordsEl.textContent = 'GPS isn\'t available in this browser - using where you pressed instead.';
+          pinLocationMode = 'longpress';
+          updateMyPinLocationButtons();
+          return;
+        }
+        navigator.geolocation.getCurrentPosition(
+          (pos) => {
+            pendingPinGpsLatLng = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+            if (pinLocationMode === 'gps') refreshMyPinCoordsDisplay();
+          },
+          () => {
+            mypinCoordsEl.textContent = 'Could not get your GPS location - using where you pressed instead.';
+            pinLocationMode = 'longpress';
+            updateMyPinLocationButtons();
+          },
+          { enableHighAccuracy: true, timeout: 10000 }
+        );
+      } else {
+        refreshMyPinCoordsDisplay();
+      }
+    });
+  });
+
+  let editingPinId = null;
+  const mypinModalTitle = document.getElementById('mypin-modal-title');
+
+  function openMyPinModal(latlng) {
+    editingPinId = null;
+    mypinModalTitle.textContent = 'Save a Personal Pin';
+    pendingPinLatLng = latlng;
+    pendingPinGpsLatLng = null;
+    pinLocationMode = 'longpress';
+    updateMyPinLocationButtons();
+    selectedMyPinCategory = 'unsure';
+    updateMyPinCategoryButtons();
+    refreshMyPinCoordsDisplay();
+    mypinNameInput.value = '';
+    mypinNotesInput.value = '';
+    mypinModal.classList.add('open');
+    mypinBackdrop.classList.add('visible');
+  }
+
+  function openEditPinModal(id) {
+    const pin = myPins.find(p => p.id === id);
+    if (!pin) return;
+    editingPinId = id;
+    mypinModalTitle.textContent = 'Edit Personal Pin';
+    pendingPinLatLng = { lat: pin.lat, lng: pin.lng };
+    pendingPinGpsLatLng = null;
+    pinLocationMode = 'longpress';
+    updateMyPinLocationButtons();
+    selectedMyPinCategory = pin.category;
+    updateMyPinCategoryButtons();
+    refreshMyPinCoordsDisplay();
+    mypinNameInput.value = pin.name || '';
+    mypinNotesInput.value = pin.notes || '';
+    mypinModal.classList.add('open');
+    mypinBackdrop.classList.add('visible');
+  }
+
+  function closeMyPinModal() {
+    mypinModal.classList.remove('open');
+    mypinBackdrop.classList.remove('visible');
+    pendingPinLatLng = null;
+    pendingPinGpsLatLng = null;
+    editingPinId = null;
+  }
+
+  document.getElementById('mypin-cancel-btn').addEventListener('click', closeMyPinModal);
+  mypinBackdrop.addEventListener('click', closeMyPinModal);
+
+  document.getElementById('mypin-save-btn').addEventListener('click', () => {
+    const useGps = pinLocationMode === 'gps' && pendingPinGpsLatLng;
+    const finalLatLng = useGps ? pendingPinGpsLatLng : pendingPinLatLng;
+    if (!finalLatLng) return;
+
+    if (editingPinId) {
+      const pin = myPins.find(p => p.id === editingPinId);
+      if (pin) {
+        pin.category = selectedMyPinCategory;
+        pin.name = mypinNameInput.value.trim();
+        pin.notes = mypinNotesInput.value.trim();
+        pin.lat = finalLatLng.lat;
+        pin.lng = finalLatLng.lng;
+      }
+    } else {
+      myPins.push({
+        id: `${PIN_ID_PREFIX}${Date.now()}`,
+        category: selectedMyPinCategory,
+        name: mypinNameInput.value.trim(),
+        notes: mypinNotesInput.value.trim(),
+        lat: finalLatLng.lat,
+        lng: finalLatLng.lng,
+        createdAt: new Date().toISOString()
+      });
+    }
+    saveMyPinsToStorage();
+    renderMyPins();
+    closeMyPinModal();
+  });
+
+  // Long-press (mobile) and right-click (desktop) both fire Leaflet's
+  // "contextmenu" event, so this single handler covers both.
+  map.on('contextmenu', (e) => {
+    openMyPinModal(e.latlng);
+  });
+
+  renderMyPins();
+
+  // ---- INIT ----
+  buildSeasonalWidget();
+</script>
+
+</body>
+</html>
