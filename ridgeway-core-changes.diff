@@ -1,0 +1,1760 @@
+--- carters-lake-map.html (scaffold, North Hall core)
++++ ridgeway-map.html (final)
+@@ -3,7 +3,24 @@
+ <head>
+ <meta charset="UTF-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+-<title>Carters Lake Field Guide</title>
++<title>Ridgeway Recreation Area Field Guide</title>
++<meta name="description" content="An interactive, mobile-friendly field guide to the trees, plants, and animals of the Ridgeway Recreation Area at Carters Lake, near Ellijay, Georgia.">
++<meta name="theme-color" content="#1f3a2e">
++<link rel="manifest" href="manifest.webmanifest">
++<link rel="apple-touch-icon" href="apple-touch-icon.png">
++<meta name="mobile-web-app-capable" content="yes">
++<meta name="apple-mobile-web-app-capable" content="yes">
++<meta name="apple-mobile-web-app-title" content="Ridgeway Guide">
++<link rel="canonical" href="https://liebeneathtrees.github.io/Ridgeway_Trail_Guide/">
++<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%231f3a2e'/%3E%3Cg transform='translate(13 11)' fill='%23e0ac4f'%3E%3Crect x='16' y='34' width='6' height='7'/%3E%3Cpolygon points='19,2 30,20 8,20'/%3E%3Cpolygon points='19,11 32,27 6,27'/%3E%3Cpolygon points='19,19 34,36 4,36'/%3E%3C/g%3E%3C/svg%3E">
++<meta property="og:type" content="website">
++<meta property="og:site_name" content="Ridgeway Recreation Area Field Guide">
++<meta property="og:title" content="Ridgeway Recreation Area Field Guide">
++<meta property="og:description" content="An interactive, mobile-friendly field guide to the trees, plants, and animals of the Ridgeway Recreation Area at Carters Lake, near Ellijay, Georgia.">
++<meta property="og:url" content="https://liebeneathtrees.github.io/Ridgeway_Trail_Guide/">
++<meta name="twitter:card" content="summary">
++<meta name="twitter:title" content="Ridgeway Recreation Area Field Guide">
++<meta name="twitter:description" content="An interactive, mobile-friendly field guide to the trees, plants, and animals of the Ridgeway Recreation Area at Carters Lake, near Ellijay, Georgia.">
+ <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
+ <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+ <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/MarkerCluster.css" />
+@@ -69,7 +86,7 @@
+     display: block;
+     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+     font-size: 0.68rem;
+-    letter-spacing: 0.22em;
++    letter-spacing: 0.14em;
+     color: #b7c4ae;
+     font-weight: 600;
+     margin-bottom: 3px;
+@@ -381,6 +398,149 @@
+     font-size: 0.78rem;
+     color: #a9baa1;
+   }
++
++  .trail-item .trail-desc {
++    font-size: 0.8rem;
++    color: #d3ddcb;
++    margin: 6px 0 0 0;
++    line-height: 1.5;
++  }
++
++  .about-subhead {
++    font-family: 'Fraunces', Georgia, 'Times New Roman', serif;
++    font-size: 0.95rem;
++    font-weight: 600;
++    color: var(--parchment);
++    margin: 16px 0 8px 0;
++  }
++
++  .resource-list {
++    margin: 0;
++    padding-left: 18px;
++    display: flex;
++    flex-direction: column;
++    gap: 8px;
++  }
++
++  .observation-box {
++    margin: 12px 0 0 0;
++    padding: 10px 12px;
++    border-radius: 3px;
++    border-left: 3px solid #2a8f86;
++    background: #e2f0ee;
++    color: #17504b;
++    font-size: 0.85rem;
++    line-height: 1.5;
++  }
++
++  .observation-box a { color: #17504b; font-weight: 600; }
++
++  .picks-group-title {
++    font-size: 0.68rem;
++    letter-spacing: 0.14em;
++    text-transform: uppercase;
++    color: #a9baa1;
++    margin: 12px 0 4px 4px;
++  }
++
++  details.picks-group { margin: 4px 0; }
++  summary.picks-group-title { cursor: pointer; list-style: none; padding: 6px 4px; }
++  summary.picks-group-title::-webkit-details-marker { display: none; }
++  summary.picks-group-title::before { content: '\25B8'; display: inline-block; width: 1em; }
++  details.picks-group[open] > summary.picks-group-title::before { content: '\25BE'; }
++
++  .challenge-tabs { display: flex; gap: 6px; flex-wrap: wrap; margin: 10px 0; }
++  .challenge-tabs button {
++    background: rgba(255,255,255,0.08);
++    color: var(--parchment);
++    border: 1px solid rgba(255,255,255,0.22);
++    border-radius: 999px;
++    padding: 8px 12px;
++    min-height: 40px;
++    font: inherit;
++    font-size: 0.8rem;
++    cursor: pointer;
++  }
++  .challenge-tabs button.active { background: #e0ac4f; color: #1f3a2e; border-color: #e0ac4f; font-weight: 600; }
++  .challenge-bar { height: 8px; background: rgba(255,255,255,0.14); border-radius: 4px; overflow: hidden; margin: 8px 0 4px; }
++  .challenge-bar span { display: block; height: 100%; width: 0; background: #e0ac4f; transition: width 0.25s ease; }
++  .challenge-progress-text { font-size: 0.8rem; color: #b7c4ae; }
++  .challenge-row { display: flex; align-items: center; gap: 10px; min-height: 48px; padding: 4px 2px; border-bottom: 1px solid rgba(255,255,255,0.08); }
++  .challenge-row input[type="checkbox"] { flex: none; width: 22px; height: 22px; accent-color: #e0ac4f; }
++  .challenge-row .challenge-name { flex: 1; background: none; border: 0; padding: 4px 0; color: inherit; text-align: left; font: inherit; cursor: pointer; }
++  .challenge-row .challenge-name strong { display: block; font-weight: 600; }
++  .challenge-row .challenge-sub { display: block; font-size: 0.74rem; color: #b7c4ae; font-style: italic; }
++  .challenge-msg { font-size: 0.84rem; margin: 12px 0 8px; line-height: 1.5; }
++  .challenge-reset { background: none; border: 1px solid rgba(255,255,255,0.28); color: var(--parchment); border-radius: 6px; padding: 8px 12px; font: inherit; font-size: 0.78rem; cursor: pointer; min-height: 40px; }
++  .species-row.found .common::after { content: ' \2713'; color: #e0ac4f; }
++  .found-btn {
++    display: inline-flex; align-items: center; gap: 8px; margin: 10px 0 2px;
++    background: #e2f0ee; color: #17504b; border: 1px solid #2a8f86; border-radius: 999px;
++    padding: 9px 14px; min-height: 44px; font: inherit; font-size: 0.86rem; font-weight: 600; cursor: pointer;
++  }
++  .found-btn.on { background: #2a8f86; color: #faf7ef; }
++
++  .quiz-progress { font-size: 0.78rem; letter-spacing: 0.08em; text-transform: uppercase; color: #b7c4ae; margin: 6px 0; }
++  .quiz-prompt { font-size: 0.95rem; line-height: 1.5; margin: 6px 0 12px; }
++  .quiz-tag { display: inline-block; font-size: 0.68rem; letter-spacing: 0.12em; text-transform: uppercase; color: #e0ac4f; margin-bottom: 4px; }
++  .quiz-options { display: flex; flex-direction: column; gap: 8px; }
++  .quiz-option {
++    text-align: left; width: 100%; min-height: 48px; padding: 10px 12px; font: inherit; font-size: 0.9rem;
++    color: var(--parchment); background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.22);
++    border-radius: 8px; cursor: pointer;
++  }
++  .quiz-option:disabled { cursor: default; }
++  .quiz-option.correct { background: #2f7d4f; border-color: #6fcf97; color: #fff; }
++  .quiz-option.wrong { background: #8f3b2a; border-color: #e08a72; color: #fff; }
++  .quiz-option.dim { opacity: 0.55; }
++  .quiz-feedback { margin: 12px 0 8px; font-size: 0.86rem; line-height: 1.55; }
++  .quiz-feedback strong { display: block; font-size: 0.95rem; margin-bottom: 4px; }
++  .quiz-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
++  .quiz-btn {
++    min-height: 44px; padding: 10px 16px; font: inherit; font-size: 0.86rem; font-weight: 600; cursor: pointer;
++    border-radius: 999px; border: 1px solid #e0ac4f; background: #e0ac4f; color: #1f3a2e;
++  }
++  .quiz-btn.secondary { background: transparent; color: var(--parchment); border-color: rgba(255,255,255,0.3); font-weight: 500; }
++  .quiz-score { font-family: 'Fraunces', Georgia, 'Times New Roman', serif; font-size: 1.7rem; margin: 6px 0; }
++  .quiz-missed { margin-top: 10px; }
++  .quiz-missed button { display: block; width: 100%; text-align: left; min-height: 44px; margin: 4px 0; padding: 8px 10px; font: inherit; font-size: 0.86rem; color: var(--parchment); background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.18); border-radius: 8px; cursor: pointer; }
++  .quiz-only-found { display: flex; align-items: center; gap: 8px; margin: 10px 0; font-size: 0.84rem; }
++  .quiz-only-found input { width: 20px; height: 20px; accent-color: #e0ac4f; }
++
++  .num-tiles { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin: 10px 0 14px; }
++  .num-tile { background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.14); border-radius: 8px; padding: 10px 12px; }
++  .num-tile .num { font-family: 'Fraunces', Georgia, 'Times New Roman', serif; font-size: 1.6rem; line-height: 1.1; color: #e0ac4f; }
++  .num-tile .lbl { font-size: 0.72rem; letter-spacing: 0.06em; text-transform: uppercase; color: #b7c4ae; margin-top: 2px; }
++  .num-subhead { font-family: 'Fraunces', Georgia, 'Times New Roman', serif; font-size: 0.98rem; font-weight: 600; margin: 16px 0 6px; color: var(--parchment); }
++  .num-bar-row { display: grid; grid-template-columns: 110px 1fr 42px; align-items: center; gap: 8px; margin: 4px 0; font-size: 0.8rem; }
++  .num-bar-track { height: 10px; background: rgba(255,255,255,0.1); border-radius: 5px; overflow: hidden; }
++  .num-bar-fill { height: 100%; background: #e0ac4f; border-radius: 5px; }
++  .num-bar-count { text-align: right; color: #b7c4ae; }
++  .num-months { display: flex; align-items: flex-end; gap: 4px; height: 110px; margin: 10px 0 2px; }
++  .num-month { flex: 1; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; height: 100%; }
++  .num-month .col { width: 100%; background: #e0ac4f; border-radius: 3px 3px 0 0; min-height: 2px; }
++  .num-month .col.peak { background: #d4703a; }
++  .num-month-labels { display: flex; gap: 4px; font-size: 0.68rem; color: #b7c4ae; text-align: center; }
++  .num-month-labels span { flex: 1; }
++  .num-top button { display: grid; grid-template-columns: 1fr auto; gap: 8px; width: 100%; text-align: left; min-height: 44px; align-items: center; padding: 6px 10px; margin: 4px 0; font: inherit; font-size: 0.86rem; color: var(--parchment); background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.16); border-radius: 8px; cursor: pointer; }
++  .num-top .sci { display: block; font-size: 0.72rem; font-style: italic; color: #b7c4ae; }
++  .num-top .cnt { color: #e0ac4f; font-weight: 600; }
++  .num-note { font-size: 0.8rem; line-height: 1.55; color: #d3ddcb; margin: 8px 0; }
++
++  .offline-banner {
++    position: fixed; top: calc(env(safe-area-inset-top, 0px) + 70px); left: 50%; transform: translateX(-50%);
++    z-index: 1200; max-width: 92vw; text-align: center;
++    background: #1f3a2e; color: #ede6d6; border: 1px solid #e0ac4f; border-radius: 999px;
++    padding: 8px 16px; font-size: 0.82rem; box-shadow: 0 4px 14px rgba(0,0,0,0.35);
++  }
++  .offline-banner[hidden] { display: none; }
++  .off-status { font-size: 0.84rem; line-height: 1.55; margin: 6px 0; }
++  .off-dot { display: inline-block; width: 9px; height: 9px; border-radius: 50%; margin-right: 6px; background: #a8927a; }
++  .off-dot.ok { background: #6fcf97; }
++  .off-dot.bad { background: #e08a72; }
++  .off-progress { height: 8px; background: rgba(255,255,255,0.14); border-radius: 4px; overflow: hidden; margin: 8px 0 4px; }
++  .off-progress span { display: block; height: 100%; width: 0; background: #e0ac4f; transition: width 0.2s ease; }
++  .off-actions { display: flex; flex-wrap: wrap; gap: 8px; margin: 10px 0; }
+ 
+   .status-legend {
+     display: flex;
+@@ -1251,7 +1411,7 @@
+       <polygon points="19,19 34,36 4,36" fill="#e0ac4f"/>
+     </svg>
+     <span class="mobile-title">
+-      <span class="logo-eyebrow">Carters Lake</span>
++      <span class="logo-eyebrow">Ridgeway Recreation Area</span>
+       <span class="logo-title-sm">Field Guide</span>
+     </span>
+   </div>
+@@ -1299,7 +1459,7 @@
+   <p class="help-updated">Last updated: September 7, 2026</p>
+ 
+   <h4>Getting around the map</h4>
+-  <p>Pan by dragging and zoom with the +/&minus; buttons or a pinch gesture. The layer switcher in the top-right corner of the map lets you change the base map between Satellite, OpenTopoMap, USGS Topo, and Street map: the same panel also has checkboxes for Community Sightings, Trails, and Areas. When you're zoomed out, nearby pins group into a numbered circle so the map doesn't get cluttered: zoom in, or tap the circle, to spread them back apart.</p>
++  <p>Pan by dragging and zoom with the +/&minus; buttons or a pinch gesture. The layer switcher in the top-right corner of the map lets you change the base map between Street map, Satellite, OpenTopoMap, and USGS Topo: the same panel also has checkboxes for Community Sightings, Trails, and Areas. When you're zoomed out, nearby pins group into a numbered circle so the map doesn't get cluttered: zoom in, or tap the circle, to spread them back apart.</p>
+ 
+   <h4>Exploring species</h4>
+   <p>Pins are grouped into Trees, Plants &amp; Wildflowers, Animals, and Landmarks in the menu. Tap a pin on the map or a name in the list to open its field notes, organized into tabs: Overview, Ecology, Uses (edible/medicinal, where relevant), Caution (only shown when there's a genuine hazard), and Connections (links to ecologically related species you can tap through to). Each card also shows a Habitat badge and a Native/Introduced/Invasive status badge.</p>
+@@ -1338,7 +1498,7 @@
+           <polygon points="19,19 34,36 4,36" fill="#e0ac4f"/>
+         </svg>
+         <span>
+-          <span class="logo-eyebrow">Carters Lake</span>
++          <span class="logo-eyebrow">Ridgeway Recreation Area</span>
+           <span class="logo-title-sm">Field Guide</span>
+         </span>
+       </div>
+@@ -1354,11 +1514,11 @@
+           <polygon points="19,19 34,36 4,36" fill="#e0ac4f"/>
+         </svg>
+         <span>
+-          <span class="logo-eyebrow">Carters Lake</span>
++          <span class="logo-eyebrow">Ridgeway Recreation Area</span>
+           <span class="logo-title">Field Guide</span>
+         </span>
+       </h1>
+-      <p class="subtitle">An interactive record of the trees, plants, and animals found along the trails of Carters Lake, Gilmer &amp; Murray Counties, GA.</p>
++      <p class="subtitle">An interactive record of the trees, plants, and animals found around the Ridgeway Recreation Area at Carters Lake, near Ellijay, GA.</p>
+     </div>
+ 
+     <button type="button" id="open-help-btn" class="help-trigger-btn">Help &amp; Instructions</button>
+@@ -1368,22 +1528,82 @@
+     <details class="about-details">
+       <summary>About &amp; Visiting Info</summary>
+       <div class="about-content">
+-        <p>Carters Lake is a 3,200-acre U.S. Army Corps of Engineers reservoir in the Blue Ridge foothills of Gilmer and Murray Counties, with 62 miles of undeveloped shoreline. This guide starts with the Big Acorn Nature Trail, a short interpretive loop behind the Visitor Center, and will grow to cover more of the lake's trails over time.</p>
++        <p>The Ridgeway Recreation Area sits on Tails Creek at Carters Lake, a 3,200-acre U.S. Army Corps of Engineers reservoir in the Blue Ridge foothills of north Georgia. It has a boat ramp, a nature trail that crosses the creek on a wooden bridge, and a mountain bike loop. This guide is built from real visits and will grow over time.</p>
+         <dl class="visit-info">
+           <dt>Address</dt>
+-          <dd>1850 Carters Dam Road, Oakman, GA 30732 - <a href="https://www.google.com/maps/search/?api=1&query=1850+Carters+Dam+Road,+Oakman,+GA+30732" target="_blank" rel="noopener">Get directions</a> (Visitor Center; please verify before visiting)</dd>
++          <dd>2950 Hap Holt Road, Ellijay, GA 30540 - <a href="https://www.google.com/maps/search/?api=1&query=2950+Hap+Holt+Road,+Ellijay,+GA+30540" target="_blank" rel="noopener">Get directions</a> (please verify before visiting)</dd>
+           <dt>Phone</dt>
+-          <dd>(706) 334-2248</dd>
++          <dd>(706) 334-2248 (Carters Lake Resource Manager's Office)</dd>
+           <dt>Trails &amp; Grounds</dt>
+           <dd>Dawn to dusk, daily (typical for Corps of Engineers recreation areas; verify locally)</dd>
++          <dt>Fees</dt>
++          <dd>A day-use parking fee applies (check current rates with the Corps of Engineers)</dd>
+           <dt>Pets</dt>
+           <dd>Leashed pets are welcome on the trails</dd>
+         </dl>
+       </div>
+     </details>
+ 
++    <details class="about-details" id="offline-details">
++      <summary>Use Offline</summary>
++      <div class="about-content">
++        <div id="offline-area"></div>
++      </div>
++    </details>
++
+     <details class="about-details">
+-      <summary>Trails</summary>
++      <summary>About the Trails</summary>
++      <div class="about-content">
++        <p>Lengths and descriptions below are compiled from published sources and are approximate. Recorded trail tracks will replace them on the map as they are walked for this guide.</p>
++        <div class="trails-list">
++          <div class="trail-item">
++            <div class="trail-name">Tumbling Waters Nature Trail</div>
++            <div class="trail-stats">About 1 mile or slightly more, out and back &middot; Easy to moderate</div>
++            <p class="trail-desc">Starts near the Ridgeway boat ramp and drops into shady forest with ferns and large hardwoods, then follows a small creek and climbs past a grassy meadow. After about 0.35 mile the trail splits. The left fork crosses a 150-foot bridge, 30 feet above Tails Creek, and continues upriver to an overlook right on the creek. The right fork also runs upriver to an overlook. The valley is described as a moist, steep-sided gorge with lush mountain vegetation, and two viewing platforms look out over Tails Creek cascading toward the lake. Hikers report the trail is marked with red diamonds.</p>
++          </div>
++          <div class="trail-item">
++            <div class="trail-name">Carters Lake Blue Trail</div>
++            <div class="trail-stats">About 1.2 to 1.3 miles &middot; Listed as easy</div>
++            <p class="trail-desc">Listed on AllTrails within the recreation area. This trail is not confirmed by the Corps of Engineers, so check the signs at the trailhead for current details.</p>
++          </div>
++        </div>
++
++        <p class="about-subhead">Mountain bike trails</p>
++        <div class="trails-list">
++          <div class="trail-item" style="border-left-color:#e0ac4f">
++            <div class="trail-name">Smooth Operator</div>
++            <div class="trail-stats">2.1-mile loop &middot; Intermediate</div>
++            <p class="trail-desc">A flow trail with beginner and intermediate lines that merge into older singletrack in the middle. It starts at the top of the road down to the boat launch on the east side and can be ridden in either direction.</p>
++          </div>
++          <div class="trail-item" style="border-left-color:#e0ac4f">
++            <div class="trail-name">Roots &amp; Chutes</div>
++            <div class="trail-stats">0.4 mile &middot; Very difficult</div>
++            <p class="trail-desc">A short, technical trail rated very difficult by riders, with a gap jump at the end.</p>
++          </div>
++          <div class="trail-item" style="border-left-color:#e0ac4f">
++            <div class="trail-name">Ledges</div>
++            <div class="trail-stats">0.4 mile &middot; Difficult</div>
++            <p class="trail-desc">A short trail rated difficult by riders.</p>
++          </div>
++        </div>
++        <p style="margin-top: 12px;">Bike trail lengths and ratings come from MTB Project riders. Riders also report a newer connector called Big Dawg and a trail called Molla Rolla Loop, which are not on MTB Project's map.</p>
++      </div>
++    </details>
++
++    <details class="about-details">
++      <summary>Resources</summary>
++      <div class="about-content">
++        <ul class="resource-list">
++          <li><a href="https://www.sam.usace.army.mil/Portals/46/docs/recreation/carters/docs/Trails.pdf" target="_blank" rel="noopener">Army Corps of Engineers trail sheet for Carters Lake (PDF)</a></li>
++          <li><a href="https://ebird.org/region/L21105827" target="_blank" rel="noopener">eBird hotspot: Tumbling Waters Trail and Ridgeway Recreation Area</a></li>
++          <li><a href="#" id="inat-area-link" target="_blank" rel="noopener">iNaturalist research-grade observations for this area</a></li>
++          <li><a href="https://www.mtbproject.com/directory/8021132/ridgeway-trails" target="_blank" rel="noopener">MTB Project: Ridgeway Trails (mountain biking)</a></li>
++        </ul>
++      </div>
++    </details>
++
++    <details class="about-details">
++      <summary>Trails on the Map</summary>
+       <div class="about-content">
+         <div class="trails-list" id="trails-list"></div>
+         <p style="margin-top: 12px;">Toggle any trail on or off from the map layers menu in the top-right corner of the map.</p>
+@@ -1440,6 +1660,19 @@
+ 
+     <hr class="divider">
+ 
++    <div class="category-block" id="picks-block">
++      <label class="category-head">
++        <input type="checkbox" id="picks-master-toggle" checked autocomplete="off">
++        <span class="dot" style="background:#2a8f86"></span>
++        <span class="label">Community Picks</span>
++        <span class="count" id="picks-count">0</span>
++      </label>
++      <p class="sightings-note">Representative species documented here by iNaturalist observers. Each pin marks where a species was recorded, not a guarantee it is there today, and the observer is credited on every card.</p>
++      <div id="picks-list"></div>
++    </div>
++
++    <hr class="divider">
++
+     <div id="sidebar-categories"></div>
+ 
+     <hr class="divider">
+@@ -1457,6 +1690,45 @@
+     </div>
+ 
+     <hr class="divider">
++
++    <details class="about-details" id="challenge-details">
++      <summary>Trail Challenge</summary>
++      <div class="about-content">
++        <p>Try to spot these species on your walk. Tap a box when you find one. Your list is saved only on this device, and nothing is sent anywhere.</p>
++        <div class="challenge-tabs" id="challenge-tabs">
++          <button type="button" data-set="starter" class="active">Starter 10</button>
++          <button type="button" data-set="season">In season now</button>
++          <button type="button" data-set="all" id="challenge-all-tab">All</button>
++        </div>
++        <div class="challenge-bar"><span id="challenge-bar-fill"></span></div>
++        <div class="challenge-progress-text" id="challenge-progress-text"></div>
++        <div id="challenge-list"></div>
++        <p class="challenge-msg" id="challenge-msg"></p>
++        <button type="button" class="challenge-reset" id="challenge-reset">Reset my list</button>
++      </div>
++    </details>
++
++    <details class="about-details" id="quiz-details">
++      <summary>Test Yourself</summary>
++      <div class="about-content">
++        <div id="quiz-area" aria-live="polite"></div>
++      </div>
++    </details>
++
++    <details class="about-details" id="numbers-details">
++      <summary>Ridgeway by the Numbers</summary>
++      <div class="about-content">
++        <div id="numbers-area"></div>
++      </div>
++    </details>
++
++    <details class="about-details">
++      <summary>How It All Connects</summary>
++      <div class="about-content">
++        <p>Every link below is a real relationship between two species on this map: who eats whom, who pollinates or spreads whom, and who depends on whom. Tap a name to jump to its card.</p>
++        <div class="trails-list" id="connections-web"></div>
++      </div>
++    </details>
+ 
+     <details class="about-details">
+       <summary>Native vs. Invasive at This Park</summary>
+@@ -1492,6 +1764,8 @@
+     </div>
+   </div>
+ </div>
++
++<div class="offline-banner" id="offline-banner" role="status" hidden>You are offline. Every species card still works, and saved map areas are available.</div>
+ 
+ <script>
+   // ---- SPECIES DATA ----
+@@ -1527,21 +1801,40 @@
+   //                 https://www.inaturalist.org/taxa/search?q=<scientific+name>
+   const species = [
+     // No species yet -- this is a fresh scaffold. Add entries here once a
+-    // real visit to the Big Acorn Nature Trail (or elsewhere at Carters
+-    // Lake) produces real coordinates and identifications. See the
++    // real visit to the Ridgeway Recreation Area produces real coordinates
++    // and identifications. See the
+     // North Hall Park Field Guide's species array for the exact field
+     // format and content standards to follow (genus-level IDs are fine
+     // when species-level certainty isn't there; only add a "caution" or
+     // "connections" entry when it's genuinely real).
+   ];
+ 
++  // ---- COMMUNITY PICKS ----
++  // Representative species documented in the Ridgeway Recreation Area by
++  // iNaturalist observers. These are NOT confirmed on a guide visit: each pin
++  // sits at the exact spot of one research-grade observation (accuracy 31 m or
++  // better, coordinates not obscured), and the observer is credited on the card.
++  // Same fields as the species array above, plus:
++  //   observation -- { observer, date, url, accuracy } for the source observation.
++  // Photos are never reused (most observations are all rights reserved); each
++  // card links to the observation instead.
++  const communityPicks = [ /* ...entries omitted from this diff... */ ];
++
++  // Everything that can be selected: field-verified species plus Community Picks.
++  const allEntries = species.concat(communityPicks);
++  const entryById = {};
++  allEntries.forEach(e => { entryById[e.id] = e; });
++
+ 
+   const categoryMeta = {
+     tree:   { label: "Trees",               color: "#5fae55" },
+     plant:  { label: "Plants & Wildflowers", color: "#dba53a" },
+     animal: { label: "Animals",             color: "#c96a3f" },
++    fungi:  { label: "Fungi & Lichens",     color: "#a8927a" },
+     landmark: { label: "Landmarks",          color: "#a37fc4" }
+   };
++
++  const categorySingular = { tree: "Tree", plant: "Plant or Wildflower", animal: "Animal", fungi: "Fungus or Lichen", landmark: "Landmark" };
+ 
+   const habitatMeta = {
+     wetland:      { label: "Wetland & Creek",         color: "#3d6b8a" },
+@@ -1576,7 +1869,7 @@
+ 
+     const matches = [];
+     const seenNames = new Set();
+-    species.forEach(s => {
++    allEntries.forEach(s => {
+       const label = getCurrentPhenologyLabel(s);
+       // Skip if we've already listed this species from a different pin --
+       // e.g. two Kudzu pins shouldn't produce two identical entries here.
+@@ -1588,8 +1881,10 @@
+ 
+     if (matches.length === 0) {
+       widget.innerHTML = `
+-        <div class="seasonal-title">This Month at Carters Lake</div>
+-        <p class="seasonal-empty">Nothing on the map is flagged as especially active in ${monthName} yet: explore the full field guide below.</p>
++        <div class="seasonal-title">This Month at Ridgeway</div>
++        <p class="seasonal-empty">${allEntries.length === 0
++          ? 'This guide is just getting started. Seasonal highlights will appear here once species are added from field visits.'
++          : 'Nothing on the map is flagged as especially active in ' + monthName + ' yet: explore the full field guide below.'}</p>
+       `;
+       return;
+     }
+@@ -1601,7 +1896,7 @@
+     `).join('');
+ 
+     widget.innerHTML = `
+-      <div class="seasonal-title">This Month at Carters Lake: ${monthName}</div>
++      <div class="seasonal-title">This Month at Ridgeway: ${monthName}</div>
+       <div class="seasonal-items">${itemsHtml}</div>
+     `;
+ 
+@@ -1611,9 +1906,10 @@
+   }
+ 
+   // ---- MAP SETUP ----
+-  // Placeholder center near the Carters Lake dam/Visitor Center area --
+-  // refine once real GPS data from a visit is available.
+-  const map = L.map('map', { zoomControl: false }).setView([34.6072, -84.6332], 15);
++  // Placeholder center between two third-party coordinates for the Ridgeway
++  // Recreation Area (they differ by about 1 km) -- refine once real GPS data
++  // from a visit is available.
++  const map = L.map('map', { zoomControl: false }).setView([34.6497, -84.6050], 15);
+   L.control.zoom({ position: 'bottomright' }).addTo(map);
+ 
+   // "Find me" / follow-mode location control. Requires HTTPS and browser
+@@ -1639,7 +1935,7 @@
+   // that have no "referer" header, which happens when this file is opened
+   // directly by double-clicking it (file://). Serve it from a local server
+   // instead -- e.g. run `python3 -m http.server` in this folder, then visit
+-  // http://localhost:8000/north-hall-park-map.html -- and the tiles will
++  // http://localhost:8000/ridgeway-map.html -- and the tiles will
+   // load normally. This will also be a non-issue once the site is hosted
+   // online for real.
+   const streetLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+@@ -1679,8 +1975,9 @@
+     attribution: 'Map data: &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, <a href="http://viewfinderpanoramas.org">SRTM</a> | Map style: &copy; <a href="https://opentopomap.org">OpenTopoMap</a> (<a href="https://creativecommons.org/licenses/by-sa/3.0/">CC-BY-SA</a>)'
+   });
+ 
+-  satelliteLayer.addTo(map);
+-  satelliteLabels.addTo(map);
++  // Street map is the default base layer (it is also listed first in the
++  // layer control below). Satellite stays one tap away.
++  streetLayer.addTo(map);
+ 
+   // ---- COMMUNITY SIGHTINGS (iNaturalist) ----
+   // A separate, optional overlay of real community-submitted observations
+@@ -1714,9 +2011,14 @@
+   let sightingsLoaded = false;
+   let sightingsEnabled = false;
+ 
+-  // Bounding box around the park's pin cluster, with a buffer to catch
+-  // sightings anywhere on the property.
+-  const PARK_BBOX = { swlat: 34.5972, swlng: -84.6432, nelat: 34.6172, nelng: -84.6232 };
++  // Placeholder box covering both candidate Ridgeway coordinates plus a
++  // buffer -- tighten around the real pin cluster after the first visit.
++  const PARK_BBOX = { swlat: 34.6350, swlng: -84.6250, nelat: 34.6650, nelng: -84.5850 };
++
++  // "Resources" link to iNaturalist, built from the same box so it stays in
++  // step whenever the box is tightened.
++  document.getElementById('inat-area-link').href =
++    `https://www.inaturalist.org/observations?nelat=${PARK_BBOX.nelat}&nelng=${PARK_BBOX.nelng}&swlat=${PARK_BBOX.swlat}&swlng=${PARK_BBOX.swlng}&place_id=any&quality_grade=research`;
+ 
+   // Buckets used to let visitors filter sightings by broad taxon group.
+   // iNaturalist's "iconic taxon" is more granular than this (e.g. separate
+@@ -1802,18 +2104,29 @@
+     });
+   }
+ 
+-  function fetchCommunitySightings() {
++  // iNaturalist returns at most 200 results per request, so sightings are
++  // pulled in pages, newest first. MAX_SIGHTING_PAGES keeps the total bounded
++  // (5 pages = up to 1,000 sightings) so a busy area can't overwhelm the map.
++  const SIGHTINGS_PER_PAGE = 200;
++  const MAX_SIGHTING_PAGES = 5;
++
++  async function fetchCommunitySightings() {
+     showStatus('Loading community sightings\u2026');
+ 
+-    const url = `https://api.inaturalist.org/v1/observations?swlat=${PARK_BBOX.swlat}&swlng=${PARK_BBOX.swlng}&nelat=${PARK_BBOX.nelat}&nelng=${PARK_BBOX.nelng}&quality_grade=research&captive=false&per_page=100&order=desc&order_by=observed_on`;
+-
+-    fetch(url)
+-      .then(res => {
++    const baseUrl = `https://api.inaturalist.org/v1/observations?swlat=${PARK_BBOX.swlat}&swlng=${PARK_BBOX.swlng}&nelat=${PARK_BBOX.nelat}&nelng=${PARK_BBOX.nelng}&quality_grade=research&captive=false&per_page=${SIGHTINGS_PER_PAGE}&order=desc&order_by=observed_on`;
++
++    let loaded = 0;
++    let total = 0;
++    let failed = false;
++
++    try {
++      for (let page = 1; page <= MAX_SIGHTING_PAGES; page++) {
++        const res = await fetch(`${baseUrl}&page=${page}`);
+         if (!res.ok) throw new Error('Network response was not ok');
+-        return res.json();
+-      })
+-      .then(data => {
++        const data = await res.json();
+         const results = data.results || [];
++        total = data.total_results || total;
++
+         results.forEach(obs => {
+           const coords = obs.geojson && obs.geojson.coordinates;
+           if (!coords) return;
+@@ -1823,18 +2136,35 @@
+           const bucket = bucketForIconicTaxon(obs.taxon?.iconic_taxon_name);
+           sightingMarkersByBucket[bucket].push(marker);
+         });
+-        sightingsLoaded = true;
+-        applySightingFilters();
+-        if (results.length === 0) {
+-          showStatus('No research-grade sightings found nearby yet.');
+-        } else {
+-          showStatus(`Loaded ${results.length} community sighting${results.length === 1 ? '' : 's'}.`);
+-          setTimeout(hideStatus, 3500);
+-        }
+-      })
+-      .catch(err => {
+-        showStatus('Could not load community sightings: check your connection and try again.', true);
+-      });
++        loaded += results.length;
++
++        if (results.length < SIGHTINGS_PER_PAGE || loaded >= total) break;
++        showStatus(`Loading community sightings (${loaded} so far)\u2026`);
++      }
++    } catch (err) {
++      failed = true;
++    }
++
++    // Nothing came back at all: leave sightingsLoaded false so a retry is possible.
++    if (failed && loaded === 0) {
++      showStatus('Could not load community sightings: check your connection and try again.', true);
++      return;
++    }
++
++    sightingsLoaded = true;
++    applySightingFilters();
++
++    if (loaded === 0) {
++      showStatus('No research-grade sightings found nearby yet.');
++    } else if (failed) {
++      showStatus(`Loaded ${loaded} community sightings, but the connection dropped, so some may be missing.`, true);
++    } else if (total > loaded) {
++      showStatus(`Showing the ${loaded} most recent of ${total} community sightings.`);
++      setTimeout(hideStatus, 5000);
++    } else {
++      showStatus(`Loaded ${loaded} community sighting${loaded === 1 ? '' : 's'}.`);
++      setTimeout(hideStatus, 3500);
++    }
+   }
+ 
+   const sightingsMasterToggle = document.getElementById('sightings-master-toggle');
+@@ -1873,10 +2203,10 @@
+   });
+ 
+   const layerControl = L.control.layers({
++    "Street map": streetLayer,
+     "Satellite": L.layerGroup([satelliteLayer, satelliteLabels]),
+     "OpenTopoMap": openTopoLayer,
+-    "USGS Topo": usgsTopoLayer,
+-    "Street map": streetLayer
++    "USGS Topo": usgsTopoLayer
+   }, null, { position: 'topright', collapsed: window.matchMedia('(max-width: 760px)').matches }).addTo(map);
+ 
+   // Registered here, before the Trails/Areas overlays are added further
+@@ -1925,7 +2255,9 @@
+   closeListBtn.addEventListener('click', closeSidebarDrawer);
+   backdropEl.addEventListener('click', closeSidebarDrawer);
+ 
+-  function makeIcon(category, active, status) {
++  const COMMUNITY_COLOR = '#2a8f86';
++
++  function makeIcon(category, active, status, community) {
+     const color = categoryMeta[category].color;
+     const size = active ? 22 : 16;
+     const invasiveDot = status === 'invasive'
+@@ -1947,7 +2279,7 @@
+           border: 2px solid #faf7ef;
+           border-radius: 50% 50% 50% 0;
+           transform: rotate(-45deg);
+-          box-shadow: 0 0 0 1.5px rgba(0,0,0,0.3), 0 3px 8px rgba(0,0,0,0.5);
++          box-shadow: ${community ? '0 0 0 2.5px ' + COMMUNITY_COLOR + ', ' : '0 0 0 1.5px rgba(0,0,0,0.3), '}0 3px 8px rgba(0,0,0,0.5);
+         "></div>
+         ${invasiveDot}
+       </div>`,
+@@ -1955,6 +2287,10 @@
+       iconAnchor: [size / 2, size],
+       popupAnchor: [0, -size]
+     });
++  }
++
++  function iconFor(s, active) {
++    return makeIcon(s.category, active, s.status, !!s.observation);
+   }
+ 
+   const markerById = {};
+@@ -1995,6 +2331,89 @@
+     markerById[s.id] = marker;
+   });
+ 
++  // ---- COMMUNITY PICKS LAYER ----
++  // Separate, toggleable layer with its own teal clusters. The teal ring on each
++  // pin marks it as a community observation rather than a field-verified entry.
++  const communityClusterGroup = L.markerClusterGroup({
++    maxClusterRadius: 45,
++    iconCreateFunction: function (cluster) {
++      const count = cluster.getChildCount();
++      return L.divIcon({
++        className: '',
++        html: `<div style="
++          width: 30px; height: 30px;
++          background: ${COMMUNITY_COLOR};
++          color: #faf7ef;
++          border-radius: 50%;
++          border: 2px solid #faf7ef;
++          display: flex; align-items: center; justify-content: center;
++          font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; font-weight: 600; font-size: 0.8rem;
++          box-shadow: 0 0 0 2px rgba(255,255,255,0.9), 0 0 0 3.5px rgba(0,0,0,0.25), 0 3px 8px rgba(0,0,0,0.5);
++        ">${count}</div>`,
++        iconSize: [30, 30]
++      });
++    }
++  });
++  communityClusterGroup.addTo(map);
++
++  communityPicks.forEach(s => {
++    const marker = L.marker([s.lat, s.lng], { icon: iconFor(s, false) });
++    marker.on('click', () => selectSpecies(s.id));
++    communityClusterGroup.addLayer(marker);
++    markerById[s.id] = marker;
++  });
++
++  layerControl.addOverlay(communityClusterGroup, "Community Picks (iNaturalist)");
++
++  const picksMasterToggle = document.getElementById('picks-master-toggle');
++  const picksListEl = document.getElementById('picks-list');
++  document.getElementById('picks-count').textContent = communityPicks.length;
++
++  // Sidebar list, grouped by category
++  ['tree', 'plant', 'animal', 'fungi'].forEach(cat => {
++    const items = communityPicks.filter(s => s.category === cat);
++    if (items.length === 0) return;
++    const group = document.createElement('details');
++    group.className = 'picks-group';
++    const title = document.createElement('summary');
++    title.className = 'picks-group-title';
++    title.textContent = `${categoryMeta[cat].label} (${items.length})`;
++    group.appendChild(title);
++    const list = document.createElement('div');
++    list.className = 'species-list';
++    items.forEach(s => {
++      const row = document.createElement('button');
++      row.className = 'species-row';
++      row.type = 'button';
++      row.innerHTML = `<span class="common">${s.name}</span><span class="sci">${s.sciName}</span>`;
++      row.addEventListener('click', () => selectSpecies(s.id));
++      rowById[s.id] = row;
++      list.appendChild(row);
++    });
++    group.appendChild(list);
++    picksListEl.appendChild(group);
++  });
++
++  // Master toggle and the map's layer menu stay in sync.
++  picksMasterToggle.addEventListener('change', (e) => {
++    if (e.target.checked) {
++      map.addLayer(communityClusterGroup);
++    } else {
++      map.removeLayer(communityClusterGroup);
++    }
++  });
++  map.on('overlayadd', (e) => {
++    if (e.layer !== communityClusterGroup) return;
++    picksMasterToggle.checked = true;
++    picksListEl.style.display = '';
++  });
++  map.on('overlayremove', (e) => {
++    if (e.layer !== communityClusterGroup) return;
++    picksMasterToggle.checked = false;
++    picksListEl.style.display = 'none';
++    if (activeId && entryById[activeId] && entryById[activeId].observation) clearSelection();
++  });
++
+   // ---- TRAIL TRACKS ----
+   // Real GPS tracks recorded on-site, drawn as trail lines. Add new trails
+   // here the same way as this one: a name, an array of [lat, lng] points,
+@@ -2002,7 +2421,7 @@
+   // distance/elevation stats computed from the GPX's recorded elevation data.
+   const trails = [
+     // No recorded trails yet -- add one here once a real GPX track of the
+-    // Big Acorn Nature Trail (or any other trail) has been walked and
++    // Tumbling Waters Nature Trail (or any other trail) has been walked and
+     // uploaded. See the North Hall Park Field Guide's trails array for
+     // the exact field format to follow.
+   ];
+@@ -2030,6 +2449,9 @@
+       <div class="trail-stats">${t.distance} \u00b7 ${t.elevGain} elevation gain \u00b7 ${t.elevRange}</div>
+     </div>
+   `).join('');
++  if (trails.length === 0) {
++    trailsListEl.innerHTML = '<p class="how-to">No trail tracks have been recorded yet. They will appear here after field visits.</p>';
++  }
+ 
+   // ---- ZONES ----
+   // Shaded, labeled areas -- for boundaries of a place (a garden, a habitat
+@@ -2084,6 +2506,9 @@
+       <div class="trail-name">${z.name}</div>
+     </div>
+   `).join('');
++  if (zones.length === 0) {
++    areasListEl.innerHTML = '<p class="how-to">No shaded areas have been added yet. They will appear here as boundaries are recorded.</p>';
++  }
+ 
+   // ---- SIDEBAR BUILD ----
+   const container = document.getElementById('sidebar-categories');
+@@ -2100,7 +2525,7 @@
+   Object.keys(statusMeta).forEach(st => { statusState[st] = true; });
+ 
+   function applyCombinedFilters() {
+-    species.forEach(s => {
++    allEntries.forEach(s => {
+       // Habitat/status filters only apply to entries that actually have those
+       // fields -- a landmark with no habitat or status should never be hidden
+       // by those filters, only by its own category checkbox.
+@@ -2108,15 +2533,23 @@
+       const habitatOk = !s.habitat || habitatState[s.habitat];
+       const statusOk = !s.status || statusState[s.status];
+       const visible = categoryOk && habitatOk && statusOk;
++      const group = s.observation ? communityClusterGroup : speciesClusterGroup;
+       if (visible) {
+-        speciesClusterGroup.addLayer(markerById[s.id]);
++        group.addLayer(markerById[s.id]);
+         rowById[s.id].style.display = '';
+       } else {
+-        speciesClusterGroup.removeLayer(markerById[s.id]);
++        group.removeLayer(markerById[s.id]);
+         rowById[s.id].style.display = 'none';
+         if (activeId === s.id) clearSelection();
+       }
+     });
++  }
++
++  if (species.length === 0) {
++    const emptyNote = document.createElement('p');
++    emptyNote.className = 'how-to';
++    emptyNote.textContent = 'No species have been confirmed on a guide visit yet. Community Picks above come from iNaturalist observations.';
++    container.appendChild(emptyNote);
+   }
+ 
+   Object.keys(categoryMeta).forEach(cat => {
+@@ -2197,36 +2630,778 @@
+     statusFiltersContainer.appendChild(label);
+   });
+ 
++  // ---- HOW IT ALL CONNECTS (built from every entry's `connections`) ----
++  (function buildConnectionsWeb() {
++    const webEl = document.getElementById('connections-web');
++    const pairs = {};
++    allEntries.forEach(a => {
++      (a.connections || []).forEach(c => {
++        const b = entryById[c.id];
++        if (!b) return;
++        const key = [a.id, b.id].sort().join('|');
++        if (!pairs[key]) pairs[key] = { ids: [a.id, b.id].sort(), notes: [] };
++        pairs[key].notes.push({ fromId: a.id, text: c.relationship });
++      });
++    });
++    const list = Object.values(pairs).sort((x, y) => entryById[x.ids[0]].name.localeCompare(entryById[y.ids[0]].name));
++    if (list.length === 0) {
++      webEl.innerHTML = '<p class="how-to">Links will appear here as species are added.</p>';
++      return;
++    }
++    webEl.innerHTML = '';
++    list.forEach(pair => {
++      const [idA, idB] = pair.ids;
++      const card = document.createElement('div');
++      card.className = 'trail-item';
++      card.innerHTML = `
++        <div class="trail-name">
++          <a href="#" data-target="${idA}">${entryById[idA].name}</a>
++          &harr;
++          <a href="#" data-target="${idB}">${entryById[idB].name}</a>
++        </div>
++        ${pair.notes.map(n => `<p class="trail-desc"><strong>${entryById[n.fromId].name}:</strong> ${n.text}</p>`).join('')}
++      `;
++      card.querySelectorAll('a[data-target]').forEach(link => {
++        link.addEventListener('click', (e) => { e.preventDefault(); selectSpecies(link.dataset.target); });
++      });
++      webEl.appendChild(card);
++    });
++  })();
++
++  // ---- TRAIL CHALLENGE (a self-reported, on-device field checklist) ----
++  // "Starter 10" is a hand-picked set of species that are easy to recognize and
++  // are green, common or conspicuous through much of the year.
++  const STARTER_IDS = [
++    'cp-christmas-fern', 'cp-mountain-laurel', 'cp-american-holly', 'cp-eastern-hemlock',
++    'cp-white-oak', 'cp-red-maple', 'cp-eastern-gray-squirrel', 'cp-turkey-vulture',
++    'cp-partridgeberry', 'cp-galax'
++  ];
++  const FOUND_KEY = 'ridgeway_found_v1';
++  let foundSet = new Set();
++  try {
++    const saved = JSON.parse(localStorage.getItem(FOUND_KEY) || '[]');
++    if (Array.isArray(saved)) foundSet = new Set(saved.filter(id => entryById[id]));
++  } catch (err) { /* storage unavailable: the list simply will not persist */ }
++
++  function saveFound() {
++    try { localStorage.setItem(FOUND_KEY, JSON.stringify([...foundSet])); } catch (err) { /* ignore */ }
++  }
++
++  let challengeSet = 'starter';
++  const challengeListEl = document.getElementById('challenge-list');
++  document.getElementById('challenge-all-tab').textContent = `All ${communityPicks.length}`;
++
++  function challengeEntries() {
++    if (challengeSet === 'starter') return STARTER_IDS.map(id => entryById[id]).filter(Boolean);
++    if (challengeSet === 'season') return communityPicks.filter(p => getCurrentPhenologyLabel(p));
++    return communityPicks.slice();
++  }
++
++  function challengeMessage(total) {
++    if (total === 0) return 'Look for the plant or animal, then tap its box. Tap a name to see where it was recorded and what it does in the forest.';
++    if (total >= communityPicks.length) return `You found all ${total}. Consider adding your own sightings to iNaturalist so other naturalists can see them too.`;
++    if (total >= 25) return `${total} species found. You are reading this forest like a naturalist.`;
++    if (total >= 10) return `${total} species found. Notice which ones share a habitat, and check the connections panel to see how they depend on each other.`;
++    return `${total} found so far. Every find counts.`;
++  }
++
++  function refreshFoundMarks() {
++    communityPicks.forEach(p => { if (rowById[p.id]) rowById[p.id].classList.toggle('found', foundSet.has(p.id)); });
++    const btn = document.querySelector('#info-panel .found-btn');
++    if (btn) {
++      const on = foundSet.has(btn.dataset.id);
++      btn.classList.toggle('on', on);
++      btn.textContent = on ? '\u2713 Found it (tap to undo)' : 'I found this one';
++    }
++  }
++
++  function setFound(id, value) {
++    if (value) foundSet.add(id); else foundSet.delete(id);
++    saveFound();
++    renderChallenge();
++    refreshFoundMarks();
++  }
++
++  function renderChallenge() {
++    const list = challengeEntries();
++    challengeListEl.innerHTML = '';
++    if (list.length === 0) {
++      challengeListEl.innerHTML = '<p class="how-to">Nothing on the list is flagged for this month yet. Try the Starter 10 or All tab.</p>';
++    }
++    list.forEach(e => {
++      const row = document.createElement('div');
++      row.className = 'challenge-row';
++      const sub = challengeSet === 'season' ? getCurrentPhenologyLabel(e) : e.role;
++      row.innerHTML = `
++        <input type="checkbox" autocomplete="off" aria-label="Found ${e.name}">
++        <button type="button" class="challenge-name"><strong>${e.name}</strong><span class="challenge-sub">${sub || ''}</span></button>
++      `;
++      const box = row.querySelector('input');
++      box.checked = foundSet.has(e.id);
++      box.addEventListener('change', () => setFound(e.id, box.checked));
++      row.querySelector('.challenge-name').addEventListener('click', () => selectSpecies(e.id));
++      challengeListEl.appendChild(row);
++    });
++    const done = list.filter(e => foundSet.has(e.id)).length;
++    const pct = list.length ? Math.round(100 * done / list.length) : 0;
++    document.getElementById('challenge-bar-fill').style.width = pct + '%';
++    document.getElementById('challenge-progress-text').textContent = list.length ? `${done} of ${list.length} found` : '';
++    document.getElementById('challenge-msg').textContent = challengeMessage(foundSet.size);
++  }
++
++  document.getElementById('challenge-tabs').addEventListener('click', (ev) => {
++    const btn = ev.target.closest('button[data-set]');
++    if (!btn) return;
++    challengeSet = btn.dataset.set;
++    document.querySelectorAll('#challenge-tabs button').forEach(b => b.classList.toggle('active', b === btn));
++    renderChallenge();
++  });
++
++  document.getElementById('challenge-reset').addEventListener('click', () => {
++    if (foundSet.size === 0) return;
++    if (!window.confirm('Clear your found list on this device?')) return;
++    foundSet = new Set();
++    saveFound();
++    renderChallenge();
++    refreshFoundMarks();
++  });
++
++  renderChallenge();
++  refreshFoundMarks();
++
++  // ---- TEST YOURSELF (a quiz generated from the cards, so it never drifts out of date) ----
++  const QUIZ_LENGTH = 10;
++  const QUIZ_BEST_KEY = 'ridgeway_quiz_best_v1';
++  const quizArea = document.getElementById('quiz-area');
++  // Words that appear in many names and would not give an answer away.
++  const QUIZ_COMMON_WORDS = ['eastern', 'american', 'common', 'great', 'southern', 'little', 'orange', 'purple', 'coral', 'asian',
++    'indian', 'carolina', 'brown', 'blue', 'gray', 'grey', 'red', 'white', 'green', 'black', 'yellow', 'wood', 'wild', 'giant'];
++  let quiz = null;
++
++  function shuffled(arr) {
++    const a = arr.slice();
++    for (let i = a.length - 1; i > 0; i--) {
++      const j = Math.floor(Math.random() * (i + 1));
++      [a[i], a[j]] = [a[j], a[i]];
++    }
++    return a;
++  }
++
++  // True when the text would give away the answer's name.
++  function quizLeaks(text, entry) {
++    const t = (text || '').toLowerCase();
++    return entry.name.toLowerCase().split(/[^a-z]+/)
++      .filter(w => w.length >= 3 && !QUIZ_COMMON_WORDS.includes(w))
++      .some(w => t.includes(w) || t.includes(w.replace(/s$/, '')));
++  }
++
++  // Keeps look-alike answers out of the choices: a distractor is dropped when the
++  // clue's longer words also show up in its own card text (so two options could both fit).
++  function quizKeywords(text) {
++    const stop = new Set(['together', 'between', 'because', 'through', 'another', 'several', 'species', 'during', 'without', 'around', 'before']);
++    return [...new Set((text || '').toLowerCase().match(/[a-z]{8,}/g) || [])].filter(w => !stop.has(w));
++  }
++  function quizConflict(text, cand) {
++    const hay = `${cand.overview} ${cand.ecology} ${cand.funFact || ''} ${cand.role || ''}`.toLowerCase();
++    return quizKeywords(text).some(w => hay.includes(w.replace(/s$/, '')));
++  }
++  function quizSharesWords(a, b) {
++    const words = t => (t || '').toLowerCase().match(/[a-z]{6,}/g) || [];
++    const wb = new Set(words(b).map(w => w.replace(/s$/, '')));
++    return words(a).some(w => wb.has(w.replace(/s$/, '')));
++  }
++
++  function phenologyLabelInMonth(e, month) {
++    const m = (e.phenology || []).find(p => p.months.includes(month));
++    return m ? m.label : null;
++  }
++
++  function firstSentences(text, n) {
++    const parts = (text || '').match(/[^.!?]+[.!?]+(\s|$)/g) || [text || ''];
++    return parts.slice(0, n).join('').trim();
++  }
++
++  // Distractors come from the same category first so the answer is not obvious.
++  function quizDistractors(correct, keyFn, count = 3, extraFilter) {
++    const ok = e => e.id !== correct.id && keyFn(e) && (!extraFilter || extraFilter(e));
++    const same = shuffled(communityPicks.filter(e => ok(e) && e.category === correct.category));
++    const other = shuffled(communityPicks.filter(e => ok(e) && e.category !== correct.category));
++    const seen = new Set([keyFn(correct)]);
++    const picked = [];
++    [...same, ...other].forEach(e => {
++      const k = keyFn(e);
++      if (picked.length < count && !seen.has(k)) { seen.add(k); picked.push(e); }
++    });
++    return picked;
++  }
++
++  function makeQuestion(type, tag, prompt, correct, distractors, labelFn, explain) {
++    if (distractors.length < 3) return null;
++    const options = shuffled([correct, ...distractors]).map(e => ({ id: e.id, label: labelFn(e) }));
++    return { type, tag, prompt, options, answerId: correct.id, entryId: correct.id, explain };
++  }
++
++  const quizGenerators = {
++    role(e, pool) {
++      if (!e.role || quizLeaks(e.role, e)) return null;
++      return makeQuestion('role', 'Ecosystem role', `Which species plays this role in the forest: "${e.role}"?`, e,
++        quizDistractors(e, x => x.role, 3, x => !quizSharesWords(x.role, e.role)), x => x.name,
++        `${e.name} is a ${e.role.toLowerCase()}. ${firstSentences(e.ecology, 2)}`);
++    },
++    role2(e) {
++      if (!e.role) return null;
++      const d = quizDistractors(e, x => x.role, 3, x => !quizSharesWords(x.role, e.role));
++      if (d.length < 3) return null;
++      const options = shuffled([e, ...d]).map(x => ({ id: x.id, label: x.role }));
++      return { type: 'role2', tag: 'Ecosystem role', prompt: `What role does the ${e.name} play in this ecosystem?`, options, answerId: e.id, entryId: e.id,
++        explain: `${e.name}: ${e.role}. ${firstSentences(e.ecology, 2)}` };
++    },
++    fact(e) {
++      if (!e.funFact || quizLeaks(e.funFact, e)) return null;
++      return makeQuestion('fact', 'Fun fact', `Which species goes with this fact? "${e.funFact}"`, e,
++        quizDistractors(e, x => x.name, 3, x => !quizConflict(e.funFact, x)), x => x.name,
++        `That is the ${e.name} (${e.sciName}). ${firstSentences(e.ecology, 2)}`);
++    },
++    sci(e) {
++      const d = quizDistractors(e, x => x.sciName);
++      if (d.length < 3) return null;
++      const options = shuffled([e, ...d]).map(x => ({ id: x.id, label: x.sciName }));
++      return { type: 'sci', tag: 'Scientific name', prompt: `What is the scientific name of the ${e.name}?`, options, answerId: e.id, entryId: e.id,
++        explain: `The ${e.name} is ${e.sciName}. ${firstSentences(e.overview, 1)}` };
++    },
++    season(e) {
++      if (!e.phenology || e.phenology.length === 0) return null;
++      const ph = shuffled(e.phenology)[0];
++      const month = shuffled(ph.months)[0];
++      const clash = communityPicks.some(x => x.id !== e.id && phenologyLabelInMonth(x, month) === ph.label);
++      if (clash || quizLeaks(ph.label, e)) return null;
++      const d = quizDistractors(e, x => x.name, 3, x => !phenologyLabelInMonth(x, month));
++      return makeQuestion('season', 'Through the seasons', `In ${MONTH_NAMES[month - 1]} you might notice: "${ph.label}." Which species is showing this?`, e,
++        d, x => x.name, `That is the ${e.name}: ${ph.label.toLowerCase()} in ${MONTH_NAMES[month - 1]}. ${e.season || ''}`.trim());
++    },
++    link(e) {
++      const cons = (e.connections || []).map(c => ({ c, other: entryById[c.id] })).filter(x => x.other && !quizLeaks(x.c.relationship, x.other));
++      if (cons.length === 0) return null;
++      const { c, other } = shuffled(cons)[0];
++      return makeQuestion('link', 'How it connects', `The ${e.name}: "${c.relationship}" Which species is the other half of this link?`, other,
++        quizDistractors(other, x => x.name, 3, x => x.id !== e.id && !quizConflict(c.relationship, x)), x => x.name,
++        `${other.name} and ${e.name} are linked in the ecosystem. ${c.relationship}`);
++    },
++    origin(e) {
++      if (e.status !== 'invasive' && e.status !== 'introduced') return null;
++      const d = shuffled(communityPicks.filter(x => x.status === 'native' && x.category === e.category)).slice(0, 3);
++      const extra = shuffled(communityPicks.filter(x => x.status === 'native' && x.category !== e.category));
++      while (d.length < 3 && extra.length) d.push(extra.pop());
++      return makeQuestion('origin', 'Native or not?', 'Which of these did NOT originate in this part of North America?', e, d, x => x.name,
++        `${e.name} is ${e.status === 'invasive' ? 'an invasive species' : 'an introduced species'} here. ${firstSentences(e.ecology, 2)}`);
++    }
++  };
++
++  function buildQuiz(onlyFound) {
++    const pool = onlyFound ? communityPicks.filter(e => foundSet.has(e.id)) : communityPicks.slice();
++    const types = ['role', 'role2', 'fact', 'sci', 'season', 'link', 'origin'];
++    const candidates = {};
++    types.forEach(t => {
++      candidates[t] = shuffled(pool).map(e => quizGenerators[t](e)).filter(Boolean);
++    });
++    const chosen = [];
++    const usedEntries = new Set();
++    const target = Math.min(QUIZ_LENGTH, pool.length);
++    let guard = 0;
++    while (chosen.length < target && guard++ < 200) {
++      let added = false;
++      shuffled(types).forEach(t => {
++        if (chosen.length >= target) return;
++        const q = candidates[t].find(x => !usedEntries.has(x.entryId));
++        if (q) { usedEntries.add(q.entryId); chosen.push(q); added = true; }
++      });
++      if (!added) break;
++    }
++    return shuffled(chosen);
++  }
++
++  function quizBest() {
++    try { return parseInt(localStorage.getItem(QUIZ_BEST_KEY) || '0', 10) || 0; } catch (err) { return 0; }
++  }
++  function quizSaveBest(score) {
++    try { if (score > quizBest()) localStorage.setItem(QUIZ_BEST_KEY, String(score)); } catch (err) { /* ignore */ }
++  }
++
++  function quizEl(tag, className, text) {
++    const el = document.createElement(tag);
++    if (className) el.className = className;
++    if (text !== undefined) el.textContent = text;
++    return el;
++  }
++
++  function renderQuizStart() {
++    quiz = null;
++    quizArea.innerHTML = '';
++    quizArea.appendChild(quizEl('p', '', `Up to ten quick questions drawn from the species cards: ecosystem roles, fun facts, scientific names, seasons and the links between species. There is no time limit, and every answer comes with a short explanation.`));
++    const foundOk = foundSet.size >= 5;
++    let onlyFoundBox = null;
++    if (foundOk) {
++      const label = quizEl('label', 'quiz-only-found');
++      onlyFoundBox = document.createElement('input');
++      onlyFoundBox.type = 'checkbox';
++      onlyFoundBox.setAttribute('autocomplete', 'off');
++      onlyFoundBox.checked = false;
++      label.appendChild(onlyFoundBox);
++      label.appendChild(document.createTextNode(`Only quiz me on the ${foundSet.size} species I have found`));
++      quizArea.appendChild(label);
++    }
++    const best = quizBest();
++    if (best > 0) quizArea.appendChild(quizEl('p', 'quiz-progress', `Your best score on this device: ${best}`));
++    const actions = quizEl('div', 'quiz-actions');
++    const startBtn = quizEl('button', 'quiz-btn', 'Start the quiz');
++    startBtn.type = 'button';
++    startBtn.addEventListener('click', () => startQuiz(onlyFoundBox && onlyFoundBox.checked));
++    actions.appendChild(startBtn);
++    quizArea.appendChild(actions);
++  }
++
++  function startQuiz(onlyFound) {
++    const questions = buildQuiz(onlyFound);
++    if (questions.length === 0) { renderQuizStart(); return; }
++    quiz = { questions, index: 0, score: 0, missed: [], answered: false, onlyFound: !!onlyFound };
++    renderQuizQuestion();
++  }
++
++  function renderQuizQuestion() {
++    const q = quiz.questions[quiz.index];
++    quizArea.innerHTML = '';
++    quizArea.appendChild(quizEl('div', 'quiz-progress', `Question ${quiz.index + 1} of ${quiz.questions.length}   Score ${quiz.score}`));
++    quizArea.appendChild(quizEl('div', 'quiz-tag', q.tag));
++    quizArea.appendChild(quizEl('p', 'quiz-prompt', q.prompt));
++    const list = quizEl('div', 'quiz-options');
++    q.options.forEach(opt => {
++      const btn = quizEl('button', 'quiz-option', opt.label);
++      btn.type = 'button';
++      btn.dataset.id = opt.id;
++      btn.addEventListener('click', () => answerQuiz(opt.id));
++      list.appendChild(btn);
++    });
++    quizArea.appendChild(list);
++    const fb = quizEl('div', 'quiz-feedback');
++    fb.id = 'quiz-feedback';
++    quizArea.appendChild(fb);
++    quiz.answered = false;
++  }
++
++  function answerQuiz(chosenId) {
++    if (!quiz || quiz.answered) return;
++    quiz.answered = true;
++    const q = quiz.questions[quiz.index];
++    const right = chosenId === q.answerId;
++    if (right) quiz.score++; else quiz.missed.push(q.entryId);
++    quizArea.querySelectorAll('.quiz-option').forEach(btn => {
++      btn.disabled = true;
++      if (btn.dataset.id === q.answerId) btn.classList.add('correct');
++      else if (btn.dataset.id === chosenId) btn.classList.add('wrong');
++      else btn.classList.add('dim');
++    });
++    const fb = document.getElementById('quiz-feedback');
++    fb.appendChild(quizEl('strong', '', right ? 'Correct.' : 'Not quite.'));
++    fb.appendChild(document.createTextNode(q.explain));
++    const actions = quizEl('div', 'quiz-actions');
++    const cardBtn = quizEl('button', 'quiz-btn secondary', 'See the card');
++    cardBtn.type = 'button';
++    cardBtn.addEventListener('click', () => selectSpecies(q.entryId));
++    const nextBtn = quizEl('button', 'quiz-btn', quiz.index + 1 < quiz.questions.length ? 'Next question' : 'See my score');
++    nextBtn.type = 'button';
++    nextBtn.addEventListener('click', () => {
++      quiz.index++;
++      if (quiz.index < quiz.questions.length) renderQuizQuestion(); else renderQuizResult();
++    });
++    actions.appendChild(cardBtn);
++    actions.appendChild(nextBtn);
++    quizArea.appendChild(actions);
++  }
++
++  function renderQuizResult() {
++    const total = quiz.questions.length;
++    const score = quiz.score;
++    quizSaveBest(score);
++    quizArea.innerHTML = '';
++    quizArea.appendChild(quizEl('div', 'quiz-progress', 'Quiz complete'));
++    quizArea.appendChild(quizEl('div', 'quiz-score', `${score} of ${total}`));
++    const ratio = score / total;
++    const msg = ratio === 1 ? 'A perfect round. You are ready to lead the walk.'
++      : ratio >= 0.7 ? 'Strong work. Review the ones you missed below, then try another round.'
++      : ratio >= 0.4 ? 'A solid start. Every round draws a fresh set of questions, so keep going.'
++      : 'Good practice. Open a few cards, take a walk, and try again.';
++    quizArea.appendChild(quizEl('p', '', msg));
++    if (quiz.missed.length) {
++      const box = quizEl('div', 'quiz-missed');
++      box.appendChild(quizEl('div', 'quiz-progress', 'Review these cards'));
++      quiz.missed.forEach(id => {
++        const b = quizEl('button', '', entryById[id].name);
++        b.type = 'button';
++        b.addEventListener('click', () => selectSpecies(id));
++        box.appendChild(b);
++      });
++      quizArea.appendChild(box);
++    }
++    const actions = quizEl('div', 'quiz-actions');
++    const again = quizEl('button', 'quiz-btn', 'Play again');
++    again.type = 'button';
++    again.addEventListener('click', () => startQuiz(quiz.onlyFound));
++    const menu = quizEl('button', 'quiz-btn secondary', 'Back to start');
++    menu.type = 'button';
++    menu.addEventListener('click', renderQuizStart);
++    actions.appendChild(again);
++    actions.appendChild(menu);
++    quizArea.appendChild(actions);
++  }
++
++  renderQuizStart();
++
++  // ---- RIDGEWAY BY THE NUMBERS ----
++  // A fixed snapshot of research-grade iNaturalist observations exported on
++  // September 18, 2026 for the same box the Community Sightings layer uses.
++  // Re-export from iNaturalist and update this object to refresh it.
++  const RIDGEWAY_STATS = { /* ...omitted... */ };
++
++  (function buildNumbers() {
++    const area = document.getElementById('numbers-area');
++    const S = RIDGEWAY_STATS;
++    const fmtDate = iso => { const [y, m, d] = iso.split('-').map(Number); return new Date(y, m - 1, d).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }); };
++    const el = (tag, cls, text) => { const x = document.createElement(tag); if (cls) x.className = cls; if (text !== undefined) x.textContent = text; return x; };
++
++    area.appendChild(el('p', 'num-note', `A snapshot of what naturalists have recorded around the Ridgeway trails on iNaturalist, counting only research-grade observations (records that other people have confirmed). It is a sample of what people happened to notice, not a full census. Exported ${fmtDate('2026-09-18')}.`));
++
++    const tiles = el('div', 'num-tiles');
++    [[S.total, 'observations'], [S.species, 'species'], [S.observers, 'observers'], [`${S.first.slice(0, 4)} to ${S.last.slice(0, 4)}`, 'years covered']].forEach(([n, l]) => {
++      const t = el('div', 'num-tile');
++      t.appendChild(el('div', 'num', typeof n === 'number' ? n.toLocaleString('en-US') : n));
++      t.appendChild(el('div', 'lbl', l));
++      tiles.appendChild(t);
++    });
++    area.appendChild(tiles);
++
++    area.appendChild(el('div', 'num-subhead', 'What has been recorded'));
++    const gmax = Math.max(...Object.values(S.groups));
++    Object.entries(S.groups).forEach(([name, count]) => {
++      const row = el('div', 'num-bar-row');
++      row.appendChild(el('span', '', name));
++      const track = el('div', 'num-bar-track');
++      const fill = el('div', 'num-bar-fill');
++      fill.style.width = (100 * count / gmax) + '%';
++      track.appendChild(fill);
++      row.appendChild(track);
++      row.appendChild(el('span', 'num-bar-count', String(count)));
++      area.appendChild(row);
++    });
++    area.appendChild(el('p', 'num-note', `Plants make up ${Math.round(100 * S.groups['Plants'] / S.total)} percent of the records. Only ${S.groups['Birds']} are birds, so this snapshot says little about the birdlife here. For birds, the eBird hotspot in Resources is the better source.`));
++
++    area.appendChild(el('div', 'num-subhead', 'When people record things'));
++    const mmax = Math.max(...S.months);
++    const monthsWrap = el('div', 'num-months');
++    monthsWrap.setAttribute('role', 'img');
++    monthsWrap.setAttribute('aria-label', 'Observations by month: ' + S.months.map((c, i) => MONTH_NAMES[i] + ' ' + c).join(', '));
++    S.months.forEach(c => {
++      const m = el('div', 'num-month');
++      const col = el('div', c === mmax ? 'col peak' : 'col');
++      col.style.height = Math.max(2, Math.round(100 * c / mmax)) + '%';
++      m.appendChild(col);
++      monthsWrap.appendChild(m);
++    });
++    area.appendChild(monthsWrap);
++    const labels = el('div', 'num-month-labels');
++    'JFMAMJJASOND'.split('').forEach(l => labels.appendChild(el('span', '', l)));
++    area.appendChild(labels);
++    const maxMonth = MONTH_NAMES[S.months.indexOf(mmax)];
++    area.appendChild(el('p', 'num-note', `${maxMonth} alone holds ${S.months[S.months.indexOf(mmax)]} of the ${S.total} records, and ${S.topDay.count} of those come from a single day, ${fmtDate(S.topDay.date)}, when seven observers were recording at once. Fall and winter are barely covered, so a quiet season here usually means nobody was looking, not that nothing was there. Your own winter and fall sightings would fill real gaps.`));
++
++    area.appendChild(el('div', 'num-subhead', 'Most-recorded species'));
++    const top = el('div', 'num-top');
++    S.top.slice(0, 10).forEach(t => {
++      const pick = communityPicks.find(p => p.sciName === t.sci);
++      const btn = el('button');
++      btn.type = 'button';
++      const left = el('span');
++      left.appendChild(document.createTextNode(pick ? pick.name : t.common));
++      left.appendChild(el('span', 'sci', t.sci));
++      btn.appendChild(left);
++      btn.appendChild(el('span', 'cnt', `${t.count} records`));
++      if (pick) btn.addEventListener('click', () => selectSpecies(pick.id));
++      else btn.disabled = true;
++      top.appendChild(btn);
++    });
++    area.appendChild(top);
++    const inGuide = S.top.slice(0, 10).filter(t => communityPicks.some(p => p.sciName === t.sci)).length;
++    area.appendChild(el('p', 'num-note', `${inGuide === 10 ? 'Every one of these has' : inGuide + ' of these 10 have'} a Community Pick card: tap one to open it. Even the most-recorded species has only ${S.top[0].count} records, so one more careful observation makes a real difference.`));
++
++    const link = el('a');
++    link.href = 'https://www.inaturalist.org/';
++    link.target = '_blank';
++    link.rel = 'noopener';
++    link.textContent = 'Add your own sightings on iNaturalist';
++    const linkP = el('p', 'num-note');
++    linkP.appendChild(link);
++    area.appendChild(linkP);
++  })();
++
++  // ---- OFFLINE MODE ----
++  // sw.js (next to this file) keeps the page, its libraries and the map tiles the
++  // visitor has looked at. This section registers it and adds a "save this map
++  // view" button. Everything else (cards, quiz, challenge, personal pins) already
++  // lives in the page or in this device's storage, so it works without signal.
++  const offlineSupported = 'serviceWorker' in navigator &&
++    (location.protocol === 'https:' || location.hostname === 'localhost' || location.hostname === '127.0.0.1');
++  const offlineArea = document.getElementById('offline-area');
++  const offlineBanner = document.getElementById('offline-banner');
++  let swRegistration = null;
++  let offlineInfo = { pageSaved: false, tileCount: 0 };
++  let offlineBusy = false;
++  let offlineMessage = '';
++  let deferredInstallPrompt = null;
++
++  function updateOnlineBanner() { offlineBanner.hidden = navigator.onLine; }
++  window.addEventListener('online', () => { updateOnlineBanner(); renderOffline(); });
++  window.addEventListener('offline', () => { updateOnlineBanner(); renderOffline(); });
++  updateOnlineBanner();
++
++  window.addEventListener('beforeinstallprompt', (ev) => {
++    ev.preventDefault();
++    deferredInstallPrompt = ev;
++    renderOffline();
++  });
++
++  function swMessage(message, onProgress) {
++    return new Promise((resolve, reject) => {
++      const worker = swRegistration && swRegistration.active;
++      if (!worker) { reject(new Error('The offline helper is not ready yet.')); return; }
++      const channel = new MessageChannel();
++      channel.port1.onmessage = (ev) => {
++        const m = ev.data || {};
++        if (m.type === 'PROGRESS') { if (onProgress) onProgress(m); }
++        else resolve(m);
++      };
++      worker.postMessage(message, [channel.port2]);
++    });
++  }
++
++  // Standard slippy-map tile math.
++  function tileX(lng, z) { return Math.floor((lng + 180) / 360 * Math.pow(2, z)); }
++  function tileY(lat, z) {
++    const r = lat * Math.PI / 180;
++    return Math.floor((1 - Math.log(Math.tan(r) + 1 / Math.cos(r)) / Math.PI) / 2 * Math.pow(2, z));
++  }
++  function tileUrlFor(layer, x, y, z) {
++    const subs = layer.options.subdomains || 'abc';
++    return L.Util.template(layer._url, { s: subs[(x + y) % subs.length], x: x, y: y, z: z });
++  }
++
++  // Free community map servers ask for light use, so their caps are smaller.
++  function activeOfflineSet() {
++    if (map.hasLayer(satelliteLayer)) return { name: 'Satellite', layers: [satelliteLayer, satelliteLabels], cap: 200, mbPerTile: 0.03 };
++    if (map.hasLayer(usgsTopoLayer)) return { name: 'USGS Topo', layers: [usgsTopoLayer], cap: 200, mbPerTile: 0.03 };
++    if (map.hasLayer(openTopoLayer)) return { name: 'OpenTopoMap', layers: [openTopoLayer], cap: 60, mbPerTile: 0.03 };
++    return { name: 'Street map', layers: [streetLayer], cap: 60, mbPerTile: 0.02 };
++  }
++
++  // The tiles for what is on screen, plus a little wider and closer, so the saved
++  // area covers the same ground you would see by panning and zooming.
++  function planOfflineTiles() {
++    const set = activeOfflineSet();
++    const bounds = map.getBounds().pad(0.1);
++    const z0 = Math.round(map.getZoom());
++    const zooms = [z0, z0 - 1, z0 + 1, z0 + 2].filter(z => z >= 12);
++    const urls = [];
++    const seen = new Set();
++    zooms.forEach(z => {
++      const batch = [];
++      set.layers.forEach(layer => {
++        const zz = Math.min(z, layer.options.maxNativeZoom || layer.options.maxZoom || 18);
++        const x0 = tileX(bounds.getWest(), zz), x1 = tileX(bounds.getEast(), zz);
++        const y0 = tileY(bounds.getNorth(), zz), y1 = tileY(bounds.getSouth(), zz);
++        for (let x = x0; x <= x1; x++) for (let y = y0; y <= y1; y++) batch.push(tileUrlFor(layer, x, y, zz));
++      });
++      const fresh = batch.filter(u => !seen.has(u));
++      if (urls.length + fresh.length > set.cap) return;   // skip a level that would go over the cap
++      fresh.forEach(u => { seen.add(u); urls.push(u); });
++    });
++    return { set, urls };
++  }
++
++  async function refreshOfflineStatus() {
++    try {
++      offlineInfo = await swMessage({ type: 'STATUS', page: location.href.split('#')[0] });
++    } catch (err) { /* worker not ready yet */ }
++    renderOffline();
++  }
++
++  function el2(tag, cls, text) {
++    const x = document.createElement(tag);
++    if (cls) x.className = cls;
++    if (text !== undefined) x.textContent = text;
++    return x;
++  }
++
++  function renderOffline() {
++    if (!offlineArea) return;
++    offlineArea.innerHTML = '';
++    if (!offlineSupported) {
++      offlineArea.appendChild(el2('p', 'off-status', 'Offline mode needs the hosted (https) version of the guide. Opened from a file on your computer, the guide works only while you are connected.'));
++      return;
++    }
++    const ready = !!(swRegistration && swRegistration.active);
++    const status = el2('p', 'off-status');
++    const dot = el2('span', 'off-dot' + (ready && offlineInfo.pageSaved ? ' ok' : ready ? '' : ' bad'));
++    status.appendChild(dot);
++    status.appendChild(document.createTextNode(
++      ready && offlineInfo.pageSaved ? 'Ready: the guide will open without a connection.'
++      : ready ? 'Getting ready: open the guide once more with a connection so it can finish saving.'
++      : 'Setting up the offline helper.'));
++    offlineArea.appendChild(status);
++    offlineArea.appendChild(el2('p', 'off-status', `Saved map tiles on this device: ${offlineInfo.tileCount || 0}.`));
++
++    const plan = planOfflineTiles();
++    if (plan.urls.length === 0) {
++      offlineArea.appendChild(el2('p', 'off-status', 'This view covers too much ground to save. Zoom in a little, then try again.'));
++    } else {
++      offlineArea.appendChild(el2('p', 'off-status', `Saving this view (${plan.set.name}) means about ${plan.urls.length} map tiles, roughly ${Math.max(1, Math.round(plan.urls.length * plan.set.mbPerTile))} MB.`));
++    }
++
++    const prog = el2('div', 'off-progress');
++    const fill = el2('span');
++    fill.id = 'off-progress-fill';
++    prog.appendChild(fill);
++    prog.hidden = !offlineBusy;
++    offlineArea.appendChild(prog);
++    const msg = el2('p', 'off-status', offlineMessage);
++    msg.id = 'off-message';
++    offlineArea.appendChild(msg);
++
++    const actions = el2('div', 'off-actions');
++    const saveBtn = el2('button', 'quiz-btn', 'Save this map view');
++    saveBtn.type = 'button';
++    saveBtn.disabled = !ready || offlineBusy || plan.urls.length === 0 || !navigator.onLine;
++    saveBtn.addEventListener('click', () => saveOfflineView(plan));
++    const clearBtn = el2('button', 'quiz-btn secondary', 'Remove saved tiles');
++    clearBtn.type = 'button';
++    clearBtn.disabled = !ready || offlineBusy || !offlineInfo.tileCount;
++    clearBtn.addEventListener('click', clearOfflineTiles);
++    actions.appendChild(saveBtn);
++    actions.appendChild(clearBtn);
++    if (deferredInstallPrompt) {
++      const inst = el2('button', 'quiz-btn secondary', 'Add to home screen');
++      inst.type = 'button';
++      inst.addEventListener('click', async () => {
++        deferredInstallPrompt.prompt();
++        try { await deferredInstallPrompt.userChoice; } catch (err) { /* ignore */ }
++        deferredInstallPrompt = null;
++        renderOffline();
++      });
++      actions.appendChild(inst);
++    }
++    offlineArea.appendChild(actions);
++
++    offlineArea.appendChild(el2('p', 'num-note', 'Before you head out: switch to the map style you want, zoom to where you will walk, and save the view while you have signal. Species cards, the quiz, your found list and your own pins all work offline. Community Sightings shows the last results it loaded. Free map providers ask for light use, so save only what you need.'));
++    offlineArea.appendChild(el2('p', 'num-note', 'To keep it like an app: on iPhone tap Share, then Add to Home Screen. On Android, open the browser menu and choose Install app or Add to Home screen.'));
++  }
++
++  async function saveOfflineView(plan) {
++    offlineBusy = true;
++    offlineMessage = `Saving ${plan.urls.length} tiles...`;
++    renderOffline();
++    try {
++      if (navigator.storage && navigator.storage.persist) navigator.storage.persist();
++      const result = await swMessage({ type: 'CACHE_TILES', urls: plan.urls }, (m) => {
++        const f = document.getElementById('off-progress-fill');
++        if (f) f.style.width = Math.round(100 * m.done / Math.max(1, m.total)) + '%';
++        const t = document.getElementById('off-message');
++        if (t) t.textContent = `Saving ${m.done} of ${m.total}...`;
++      });
++      offlineMessage = result.failed
++        ? `Saved ${result.total - result.failed} of ${result.total} tiles. ${result.failed} could not be saved, so try again with a stronger signal.`
++        : `Saved ${result.total} tiles. This map view is ready offline.`;
++    } catch (err) {
++      offlineMessage = 'Could not save the map view. Check your connection and try again.';
++    }
++    offlineBusy = false;
++    await refreshOfflineStatus();
++  }
++
++  async function clearOfflineTiles() {
++    try { await swMessage({ type: 'CLEAR_TILES' }); offlineMessage = 'Saved map tiles removed.'; }
++    catch (err) { offlineMessage = 'Could not remove the saved tiles.'; }
++    await refreshOfflineStatus();
++  }
++
++  map.on('moveend zoomend baselayerchange', () => { if (!offlineBusy) renderOffline(); });
++  renderOffline();
++
++  if (offlineSupported) {
++    navigator.serviceWorker.register('sw.js')
++      .then(reg => { swRegistration = reg; return navigator.serviceWorker.ready; })
++      .then(reg => {
++        swRegistration = reg;
++        // Save this page now so the very next offline visit works.
++        return swMessage({ type: 'CACHE_PAGE', url: location.href.split('#')[0] }).catch(() => {});
++      })
++      .then(refreshOfflineStatus)
++      .catch(() => { offlineMessage = 'The offline helper could not start in this browser.'; renderOffline(); });
++  }
++
+   // ---- SELECTION / INFO PANEL ----
+   const infoPanel = document.getElementById('info-panel');
+ 
++  // What the field-notes panel says when nothing is selected. While the guide
++  // has no species yet, say so instead of pointing at an empty list.
++  function emptyInfoHTML() {
++    return allEntries.length === 0
++      ? '<p class="info-empty">This guide is just getting started. Field notes for each species will appear here once entries are added from visits to Ridgeway.</p>'
++      : '<p class="info-empty">Select a pin on the map or a species from the list to see its field notes here.</p>';
++  }
++  infoPanel.innerHTML = emptyInfoHTML();
++
+   function clearSelection() {
+     if (activeId) {
+-      const prev = species.find(s => s.id === activeId);
+-      markerById[activeId].setIcon(makeIcon(prev.category, false, prev.status));
++      const prev = entryById[activeId];
++      markerById[activeId].setIcon(iconFor(prev, false));
+       rowById[activeId].classList.remove('active');
+     }
+     activeId = null;
+     infoPanel.classList.remove('open');
+-    infoPanel.innerHTML = '<p class="info-empty">Select a pin on the map or a species from the list to see its field notes here.</p>';
++    infoPanel.innerHTML = emptyInfoHTML();
+   }
+ 
+   function selectSpecies(id) {
+     if (activeId === id) return;
+     if (activeId) {
+-      const prev = species.find(s => s.id === activeId);
+-      markerById[activeId].setIcon(makeIcon(prev.category, false, prev.status));
++      const prev = entryById[activeId];
++      markerById[activeId].setIcon(iconFor(prev, false));
+       rowById[activeId].classList.remove('active');
+     }
+-    const s = species.find(sp => sp.id === id);
++    const s = entryById[id];
++    // Selecting a Community Pick (from a connection or the This Month widget)
++    // turns its layer back on if it was switched off.
++    if (s.observation && !map.hasLayer(communityClusterGroup)) {
++      map.addLayer(communityClusterGroup);
++    }
+     activeId = id;
+-    markerById[id].setIcon(makeIcon(s.category, true, s.status));
++    markerById[id].setIcon(iconFor(s, true));
+     rowById[id].classList.add('active');
++    const openGroup = rowById[id].closest('details.picks-group');
++    if (openGroup) openGroup.open = true;
+ 
+     map.panTo([s.lat, s.lng]);
+     renderInfoPanel(s);
+     closeSidebarDrawer();
+     infoPanel.classList.add('open');
++  }
++
++  // Credit line for Community Picks: who recorded the observation, when, how
++  // precisely, and a link back to it on iNaturalist.
++  function observationHtml(s) {
++    if (!s.observation) return '';
++    const o = s.observation;
++    const parts = o.date.split('-').map(Number);
++    const dateText = new Date(parts[0], parts[1] - 1, parts[2])
++      .toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
++    return `<div class="observation-box"><strong>Community observation.</strong> Recorded here by ${o.observer} on ${dateText}, with the location accurate to about ${o.accuracy} m. This pin marks where the species was documented, not a guarantee it is there today. <a href="${o.url}" target="_blank" rel="noopener">View the observation on iNaturalist &#8599;</a></div>`;
+   }
+ 
+   function renderInfoPanel(s) {
+@@ -2245,6 +3420,7 @@
+         <p>${s.overview}</p>
+         ${s.funFact ? `<p><strong>Fun fact:</strong> ${s.funFact}</p>` : ''}
+         ${s.season ? `<div class="season">\u{1F553} ${s.season}</div>` : ''}
++        ${observationHtml(s)}
+       `
+     });
+ 
+@@ -2287,7 +3463,7 @@
+ 
+     if (s.connections && s.connections.length) {
+       const itemsHtml = s.connections.map(c => {
+-        const target = species.find(sp => sp.id === c.id);
++        const target = entryById[c.id];
+         if (!target) return '';
+         return `
+           <button type="button" class="connection-item" data-target="${target.id}">
+@@ -2311,11 +3487,18 @@
+       <div class="info-tab-panel ${i === 0 ? 'active' : ''}" data-tab-panel="${t.key}">${t.html}</div>
+     `).join('');
+ 
+-    const badgeRowHtml = (s.habitat && s.status) ? `
+-        <div class="badge-row">
+-          <div class="habitat-badge" style="background:${habitatMeta[s.habitat].color}22; color:${habitatMeta[s.habitat].color};">${habitatMeta[s.habitat].label}</div>
+-          <div class="habitat-badge" style="background:${statusMeta[s.status].color}22; color:${statusMeta[s.status].color};">${statusMeta[s.status].label}</div>
+-        </div>` : '';
++    const badges = [];
++    if (s.habitat && s.status) {
++      badges.push(`<div class="habitat-badge" style="background:${habitatMeta[s.habitat].color}22; color:${habitatMeta[s.habitat].color};">${habitatMeta[s.habitat].label}</div>`);
++      badges.push(`<div class="habitat-badge" style="background:${statusMeta[s.status].color}22; color:${statusMeta[s.status].color};">${statusMeta[s.status].label}</div>`);
++    }
++    if (s.observation) {
++      badges.push(`<div class="habitat-badge" style="background:${COMMUNITY_COLOR}22; color:#1f6f68;">Community Pick</div>`);
++    }
++    if (s.role) {
++      badges.push(`<div class="habitat-badge" style="background:#5a6b7a1f; color:#3d4a55;">Role: ${s.role}</div>`);
++    }
++    const badgeRowHtml = badges.length ? `<div class="badge-row">${badges.join('')}</div>` : '';
+ 
+     const learnMoreHtml = (s.learnMoreLinks && s.learnMoreLinks.length) ? `
+         <div class="learn-more-row">
+@@ -2326,10 +3509,11 @@
+     infoPanel.innerHTML = `
+       <div class="info-content">
+         <button type="button" class="info-close-btn" id="info-close-btn">Close &#10005;</button>
+-        <div class="category-tag" style="color:${meta.color}">${meta.label.replace(/s$/, '')}</div>
++        <div class="category-tag" style="color:${meta.color}">${categorySingular[s.category] || meta.label}</div>
+         <h2>${s.name}</h2>
+         <p class="sci-name">${s.sciName}</p>
+         ${badgeRowHtml}
++        ${s.observation ? `<button type="button" class="found-btn" data-id="${s.id}"></button>` : ''}
+         <div class="info-tabs">${tabButtons}</div>
+         <div class="info-tab-body">${tabPanels}</div>
+         ${learnMoreHtml}
+@@ -2337,6 +3521,12 @@
+     `;
+ 
+     infoPanel.querySelector('#info-close-btn').addEventListener('click', clearSelection);
++
++    const foundBtn = infoPanel.querySelector('.found-btn');
++    if (foundBtn) {
++      foundBtn.addEventListener('click', () => setFound(s.id, !foundSet.has(s.id)));
++      refreshFoundMarks();
++    }
+ 
+     infoPanel.querySelectorAll('.connection-item').forEach(btn => {
+       btn.addEventListener('click', () => selectSpecies(btn.dataset.target));
+@@ -2362,7 +3552,14 @@
+   contactEmailLink.href = `mailto:${SUBMISSION_EMAIL}`;
+   contactEmailLink.textContent = SUBMISSION_EMAIL;
+ 
+-  const MY_PINS_KEY = 'nhp_my_pins';
++  const MY_PINS_KEY = 'ridgeway_my_pins';
++
++  // Identifiers that mark data as belonging to this guide. Save files carry
++  // APP_ID, and every pin id starts with PIN_ID_PREFIX. Upload accepts only
++  // files and pins that carry them, so exports from another field guide
++  // (which use different ids) are rejected.
++  const APP_ID = 'ridgeway-recreation-area-field-guide';
++  const PIN_ID_PREFIX = 'rwpin_';
+ 
+   function loadMyPins() {
+     try {
+@@ -2404,7 +3601,7 @@
+   function pinToText(p) {
+     const meta = myPinCategoryMeta[p.category] || myPinCategoryMeta.unsure;
+     return [
+-      "Carters Lake Field Guide -- Visitor Pin Submission",
++      "Ridgeway Recreation Area Field Guide -- Visitor Pin Submission",
+       "------------------------------------------------------",
+       `Name/Guess: ${p.name || '(not provided)'}`,
+       `Category: ${meta.label}`,
+@@ -2457,12 +3654,12 @@
+   function exportSinglePin(id) {
+     const p = myPins.find(pin => pin.id === id);
+     if (!p) return;
+-    downloadTextFile(`north-hall-park-pin-${id}.txt`, pinToText(p));
++    downloadTextFile(`ridgeway-pin-${id}.txt`, pinToText(p));
+   }
+ 
+   function exportAllPins() {
+     const text = myPins.map(pinToText).join('\n\n========================================\n\n');
+-    downloadTextFile('north-hall-park-pins-all.txt', text);
++    downloadTextFile('ridgeway-pins-all.txt', text);
+   }
+ 
+   function deleteMyPin(id) {
+@@ -2557,12 +3754,13 @@
+ 
+   function exportMyDataFile() {
+     const payload = {
+-      app: "Carters Lake Field Guide",
++      app: "Ridgeway Recreation Area Field Guide",
++      appId: APP_ID,
+       exportedAt: new Date().toISOString(),
+       pins: myPins
+     };
+     downloadFile(
+-      'north-hall-park-my-pins.json',
++      'ridgeway-my-pins.json',
+       JSON.stringify(payload, null, 2),
+       'application/json',
+       'JSON save file',
+@@ -2580,15 +3778,23 @@
+         showUploadStatus('Could not read that file: make sure it\'s a save file exported from this app.', true);
+         return;
+       }
+-      const incoming = Array.isArray(data.pins) ? data.pins : (Array.isArray(data) ? data : null);
+-      if (!incoming) {
+-        showUploadStatus('That file doesn\'t look like a Carters Lake save file.', true);
++      if (!data || Array.isArray(data) || data.appId !== APP_ID || !Array.isArray(data.pins)) {
++        showUploadStatus('That file doesn\'t look like a Ridgeway save file. Only files exported from this guide can be uploaded.', true);
+         return;
+       }
++      const incoming = data.pins;
+       const existingIds = new Set(myPins.map(p => p.id));
+       let addedCount = 0;
++      let duplicateCount = 0;
++      let invalidCount = 0;
+       incoming.forEach(p => {
+-        if (p && p.id && !existingIds.has(p.id) && typeof p.lat === 'number' && typeof p.lng === 'number') {
++        const valid = p && typeof p.id === 'string' && p.id.startsWith(PIN_ID_PREFIX) &&
++          typeof p.lat === 'number' && typeof p.lng === 'number';
++        if (!valid) {
++          invalidCount++;
++        } else if (existingIds.has(p.id)) {
++          duplicateCount++;
++        } else {
+           myPins.push(p);
+           existingIds.add(p.id);
+           addedCount++;
+@@ -2596,10 +3802,10 @@
+       });
+       saveMyPinsToStorage();
+       renderMyPins();
+-      const skipped = incoming.length - addedCount;
+       showUploadStatus(
+         `Added ${addedCount} pin${addedCount === 1 ? '' : 's'}.` +
+-        (skipped > 0 ? ` ${skipped} were already saved and skipped.` : '')
++        (duplicateCount > 0 ? ` ${duplicateCount} were already saved and skipped.` : '') +
++        (invalidCount > 0 ? ` ${invalidCount} did not belong to this guide and were skipped.` : '')
+       );
+     };
+     reader.readAsText(file);
+@@ -2772,7 +3978,7 @@
+       }
+     } else {
+       myPins.push({
+-        id: `mypin_${Date.now()}`,
++        id: `${PIN_ID_PREFIX}${Date.now()}`,
+         category: selectedMyPinCategory,
+         name: mypinNameInput.value.trim(),
+         notes: mypinNotesInput.value.trim(),
