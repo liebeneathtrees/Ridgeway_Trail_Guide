@@ -1578,10 +1578,10 @@
       pointer-events: auto;
     }
 
-    /* Push the map's built-in controls below the fixed top bar */
+    /* Filters and layers now sit at the top of the map itself (see the
+       Filters control CSS above); no extra push needed on phones. */
     .leaflet-top.leaflet-right {
-      margin-top: 78px;
-      margin-top: calc(78px + env(safe-area-inset-top, 0px));
+      margin-top: 0;
     }
 
     /* Bigger tap targets */
