@@ -125,6 +125,39 @@
     padding: 6px 0 8px 0;
     cursor: pointer;
     user-select: none;
+    list-style: none;
+  }
+
+  .category-head::-webkit-details-marker { display: none; }
+
+  .category-head::before {
+    content: '+ ';
+    color: #a9baa1;
+    font-size: 0.9rem;
+  }
+
+  details[open] > .category-head::before {
+    content: '\2212 ';
+  }
+
+  .species-subhead {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    padding: 10px 0 5px 0;
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-weight: 600;
+    color: #b7c4ae;
+  }
+
+  .species-subhead .count {
+    margin-left: auto;
+    text-transform: none;
+    letter-spacing: normal;
+    font-weight: 400;
+    color: #8a9484;
   }
 
   .category-head input {
@@ -281,6 +314,23 @@
     gap: 4px;
   }
 
+  .seasonal-group {
+    margin-bottom: 10px;
+  }
+
+  .seasonal-group:last-child {
+    margin-bottom: 0;
+  }
+
+  .seasonal-group-title {
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-weight: 600;
+    color: #b7c4ae;
+    margin-bottom: 4px;
+  }
+
   .seasonal-item {
     display: block;
     width: 100%;
@@ -434,20 +484,6 @@
   }
 
   .observation-box a { color: #17504b; font-weight: 600; }
-
-  .picks-group-title {
-    font-size: 0.68rem;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    color: #a9baa1;
-    margin: 12px 0 4px 4px;
-  }
-
-  details.picks-group { margin: 4px 0; }
-  summary.picks-group-title { cursor: pointer; list-style: none; padding: 6px 4px; }
-  summary.picks-group-title::-webkit-details-marker { display: none; }
-  summary.picks-group-title::before { content: '\25B8'; display: inline-block; width: 1em; }
-  details.picks-group[open] > summary.picks-group-title::before { content: '\25BE'; }
 
   .challenge-tabs { display: flex; gap: 6px; flex-wrap: wrap; margin: 10px 0; }
   .challenge-tabs button {
@@ -610,6 +646,165 @@
   }
 
   .sightings-note.is-error { color: #e0a58f; }
+
+  /* Inside the Filters panel the note sits on the light card, not the dark
+     sidebar, so it needs darker text to stay readable. */
+  .filters-panel .sightings-note { color: #6b6253; margin: 0 0 6px 25px; }
+  .filters-panel .sightings-note.is-error { color: #a0452b; }
+
+  /* Leaflet's own CSS sets z-index: 1000 on .leaflet-bottom itself (the
+     positioned container that holds the attribution, zoom, and locate
+     controls), not on the attribution control alone -- that outer
+     container is what actually establishes the stacking context, so
+     overriding only the inner .leaflet-control-attribution has no effect.
+     Lowering the container below the mobile info-panel's 950 lets the
+     bottom sheet properly cover the attribution text when it's open. */
+  .leaflet-bottom {
+    z-index: 900 !important;
+  }
+
+  /* ---- Filters control: an icon button beside the layers button, top right of the map ---- */
+  .leaflet-top.leaflet-right {
+    display: flex;
+    flex-direction: row-reverse;   /* layers stays at the right edge, Filters sits to its left */
+    align-items: flex-start;
+  }
+
+  .filters-control {
+    border: none !important;
+    border-radius: 6px !important;
+    box-shadow: 0 4px 14px rgba(20,38,29,0.22) !important;
+    background: var(--card) !important;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    color: var(--ink);
+  }
+
+  .filters-toggle {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    background: none;
+    border: 0;
+    border-radius: 6px;
+    cursor: pointer;
+    color: var(--ink);
+  }
+
+  .leaflet-touch .filters-toggle { width: 44px; height: 44px; }   /* same size as the layers button */
+
+  @media (hover: hover) {
+    .filters-toggle:hover { background: #f0ece0; }
+    .filters-control.open .filters-toggle:hover { background: var(--forest-deep); }
+  }
+
+  .filters-control.open .filters-toggle { background: var(--forest); color: var(--parchment); }
+  .filters-toggle:focus-visible { outline: 2px solid var(--forest); outline-offset: 2px; }
+  .fp-reset:focus-visible,
+  .fp-row input:focus-visible { outline: 2px solid var(--forest); outline-offset: 2px; }
+
+  .filters-badge {
+    display: none;
+    position: absolute;
+    top: -6px;
+    right: -6px;
+    min-width: 18px;
+    height: 18px;
+    padding: 0 5px;
+    border-radius: 9px;
+    background: #b8452f;
+    color: #fff;
+    font: 600 0.72rem/18px 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    text-align: center;
+    box-shadow: 0 0 0 2px var(--card);
+  }
+
+  .filters-badge.on { display: block; }
+
+  /* The panel is placed by script (see positionFiltersPanel) so it always fits the screen
+     and stays clear of the navigation buttons at the bottom right. */
+  .filters-panel {
+    position: fixed;
+    z-index: 900;
+    box-sizing: border-box;
+    top: 60px;
+    right: 10px;
+    width: 264px;
+    max-width: calc(100vw - 20px);
+    max-height: 420px;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+    padding: 2px 12px 0;
+    background: var(--card);
+    border-radius: 6px;
+    box-shadow: 0 6px 20px rgba(20,38,29,0.28);
+    color: var(--ink);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  }
+
+  .filters-panel[hidden] { display: none; }
+
+  .fp-section-title {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #6b6253;
+    margin: 12px 0 0;
+  }
+
+  .fp-row,
+  .filters-panel .filter-check {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 5px 0;
+    font-size: 0.88rem;
+    color: var(--ink);
+    cursor: pointer;
+  }
+
+  .fp-row input { width: 16px; height: 16px; accent-color: var(--forest); flex-shrink: 0; cursor: pointer; }
+  .fp-row .dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
+  .fp-row .fp-count { margin-left: auto; color: #7a705f; font-size: 0.8rem; }
+
+  .filters-sightings[hidden] { display: none; }
+  .filters-panel .sightings-sub-filters { margin: 0; }
+
+  /* Summary and Show all stay visible while the options scroll. */
+  .fp-footer {
+    position: sticky;
+    bottom: 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin: 8px -12px 0;
+    padding: 10px 12px;
+    background: var(--card);
+    border-top: 1px solid var(--line);
+    border-radius: 0 0 6px 6px;
+  }
+
+  .fp-summary { font-size: 0.82rem; color: #6b6253; }
+
+  .fp-reset {
+    background: none;
+    border: 0;
+    padding: 4px 2px;
+    font: 600 0.84rem 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    color: var(--forest);
+    text-decoration: underline;
+    cursor: pointer;
+  }
+
+  .fp-reset:disabled { color: #a39a86; text-decoration: none; cursor: default; }
+
+  /* The sidebar no longer shows empty category blocks. */
+  #sidebar-categories:empty,
+  #sidebar-categories:empty + hr { display: none; }
 
   .main {
     display: flex;
@@ -1203,149 +1398,6 @@
     gap: 6px;
   }
 
-  /* ---- Filters control: an icon button beside the layers button, top right of the map ---- */
-  .leaflet-top.leaflet-right {
-    display: flex;
-    flex-direction: row-reverse;   /* layers stays at the right edge, Filters sits to its left */
-    align-items: flex-start;
-  }
-
-  .filters-control {
-    border: none !important;
-    border-radius: 6px !important;
-    box-shadow: 0 4px 14px rgba(20,38,29,0.22) !important;
-    background: var(--card) !important;
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-    color: var(--ink);
-  }
-
-  .filters-toggle {
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 36px;
-    height: 36px;
-    padding: 0;
-    background: none;
-    border: 0;
-    border-radius: 6px;
-    cursor: pointer;
-    color: var(--ink);
-  }
-
-  .leaflet-touch .filters-toggle { width: 44px; height: 44px; }   /* same size as the layers button */
-
-  @media (hover: hover) {
-    .filters-toggle:hover { background: #f0ece0; }
-    .filters-control.open .filters-toggle:hover { background: var(--forest-deep); }
-  }
-
-  .filters-control.open .filters-toggle { background: var(--forest); color: var(--parchment); }
-  .filters-toggle:focus-visible { outline: 2px solid var(--forest); outline-offset: 2px; }
-  .fp-reset:focus-visible,
-  .fp-row input:focus-visible { outline: 2px solid var(--forest); outline-offset: 2px; }
-
-  .filters-badge {
-    display: none;
-    position: absolute;
-    top: -6px;
-    right: -6px;
-    min-width: 18px;
-    height: 18px;
-    padding: 0 5px;
-    border-radius: 9px;
-    background: #b8452f;
-    color: #fff;
-    font: 600 0.72rem/18px 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-    text-align: center;
-    box-shadow: 0 0 0 2px var(--card);
-  }
-
-  .filters-badge.on { display: block; }
-
-  /* The panel is placed by script (see positionFiltersPanel) so it always fits the screen
-     and stays clear of the navigation buttons at the bottom right. */
-  .filters-panel {
-    position: fixed;
-    z-index: 900;
-    box-sizing: border-box;
-    top: 60px;
-    right: 10px;
-    width: 264px;
-    max-width: calc(100vw - 20px);
-    max-height: 420px;
-    overflow-y: auto;
-    overscroll-behavior: contain;
-    -webkit-overflow-scrolling: touch;
-    padding: 2px 12px 0;
-    background: var(--card);
-    border-radius: 6px;
-    box-shadow: 0 6px 20px rgba(20,38,29,0.28);
-    color: var(--ink);
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  }
-
-  .filters-panel[hidden] { display: none; }
-
-  .fp-section-title {
-    font-size: 0.8rem;
-    font-weight: 600;
-    color: #6b6253;
-    margin: 12px 0 0;
-  }
-
-  .fp-row,
-  .filters-panel .filter-check {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 5px 0;
-    font-size: 0.88rem;
-    color: var(--ink);
-    cursor: pointer;
-  }
-
-  .fp-row input { width: 16px; height: 16px; accent-color: var(--forest); flex-shrink: 0; cursor: pointer; }
-  .fp-row .dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
-  .fp-row .fp-count { margin-left: auto; color: #7a705f; font-size: 0.8rem; }
-
-  .filters-sightings[hidden] { display: none; }
-  .filters-panel .sightings-sub-filters { margin: 0; }
-
-  /* Summary and Show all stay visible while the options scroll. */
-  .fp-footer {
-    position: sticky;
-    bottom: 0;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 10px;
-    margin: 8px -12px 0;
-    padding: 10px 12px;
-    background: var(--card);
-    border-top: 1px solid var(--line);
-    border-radius: 0 0 6px 6px;
-  }
-
-  .fp-summary { font-size: 0.82rem; color: #6b6253; }
-
-  .fp-reset {
-    background: none;
-    border: 0;
-    padding: 4px 2px;
-    font: 600 0.84rem 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-    color: var(--forest);
-    text-decoration: underline;
-    cursor: pointer;
-  }
-
-  .fp-reset:disabled { color: #a39a86; text-decoration: none; cursor: default; }
-
-  /* The sidebar no longer shows empty category blocks. */
-  #sidebar-categories:empty,
-  #sidebar-categories:empty + hr { display: none; }
-
   .mobile-topbar { display: none; }
   .drawer-backdrop { display: none; }
   .sidebar-mobile-header { display: none; }
@@ -1528,7 +1580,8 @@
 
     /* Push the map's built-in controls below the fixed top bar */
     .leaflet-top.leaflet-right {
-      margin-top: 0;
+      margin-top: 78px;
+      margin-top: calc(78px + env(safe-area-inset-top, 0px));
     }
 
     /* Bigger tap targets */
@@ -1605,13 +1658,13 @@
 
   <h4>Exploring species</h4>
   <p>Pins are grouped into Trees, Plants &amp; Wildflowers, Animals, and Landmarks in the menu. Tap a pin on the map or a name in the list to open its field notes, organized into tabs: Overview, Ecology, Uses (edible/medicinal, where relevant), Caution (only shown when there's a genuine hazard), and Connections (links to ecologically related species you can tap through to). Each card also shows a Habitat badge and a Native/Introduced/Invasive status badge.</p>
-  <p>The funnel button at the top right of the map, next to the layer switcher, opens a panel with Type, Habitat, and Native status checkboxes. They work together: a pin only shows when it passes all three. The panel also shows how many pins are showing, and Show all turns every filter back on.</p>
+  <p>The Habitat and Native Status filters in the menu work alongside the Trees/Plants/Animals filters: a pin only shows when all of its relevant filters are checked.</p>
 
   <h4>Trails &amp; areas</h4>
   <p>Recorded trails appear as green dashed lines with their distance and elevation gain listed under "Trails" in the menu. Shaded areas mark the boundary of a specific place (like a meadow or a habitat zone) rather than a walking path, listed under "Areas." Both can be toggled on or off from the map's layer switcher.</p>
 
   <h4>Community sightings</h4>
-  <p>This optional layer pulls in real, community-submitted observations from iNaturalist near the park - a separate thing from the curated species pins above, since these are individual sightings rather than field-guide writeups. Turn it on from the menu (or the map's layer switcher), then open the funnel Filters button on the map to show just birds, plants, insects, and so on. Tap any dot to see the photo, date, and a link back to the original observation.</p>
+  <p>This optional layer pulls in real, community-submitted observations from iNaturalist near the park - a separate thing from the curated species pins above, since these are individual sightings rather than field-guide writeups. Turn it on from the menu (or the map's layer switcher), then use the sub-filters to show just birds, plants, insects, and so on. Tap any dot to see the photo, date, and a link back to the original observation.</p>
 
   <h4>Finding your location</h4>
   <p>The navigation arrow button near the zoom controls shows your position on the map and follows you as you walk. This needs your permission the first time, only works on the live, secure website (not a locally saved file), and works best on a phone with GPS: accuracy will vary, especially under heavy tree cover.</p>
@@ -1782,39 +1835,6 @@
 
     <hr class="divider">
 
-    <div class="category-block" id="sightings-block">
-      <label class="category-head">
-        <input type="checkbox" id="sightings-master-toggle" autocomplete="off">
-        <span class="dot" style="background:#3d6b8a"></span>
-        <span class="label">Community Sightings</span>
-      </label>
-      <div class="sightings-sub-filters" id="sightings-sub-filters">
-        <label class="filter-check"><input type="checkbox" checked autocomplete="off" data-bucket="plants"> Plants</label>
-        <label class="filter-check"><input type="checkbox" checked autocomplete="off" data-bucket="fungi"> Fungi &amp; Lichens</label>
-        <label class="filter-check"><input type="checkbox" checked autocomplete="off" data-bucket="birds"> Birds</label>
-        <label class="filter-check"><input type="checkbox" checked autocomplete="off" data-bucket="mammals"> Mammals</label>
-        <label class="filter-check"><input type="checkbox" checked autocomplete="off" data-bucket="herps"> Reptiles &amp; Amphibians</label>
-        <label class="filter-check"><input type="checkbox" checked autocomplete="off" data-bucket="insects"> Insects &amp; Spiders</label>
-        <label class="filter-check"><input type="checkbox" checked autocomplete="off" data-bucket="other"> Other Wildlife</label>
-      </div>
-      <p class="sightings-note" id="sightings-note">Real sightings logged by naturalists near the park, via iNaturalist.</p>
-    </div>
-
-    <hr class="divider">
-
-    <div class="category-block" id="picks-block">
-      <label class="category-head">
-        <input type="checkbox" id="picks-master-toggle" checked autocomplete="off">
-        <span class="dot" style="background:#2a8f86"></span>
-        <span class="label">Community Picks</span>
-        <span class="count" id="picks-count">0</span>
-      </label>
-      <p class="sightings-note">Representative species documented here by iNaturalist observers. Each pin marks where a species was recorded, not a guarantee it is there today, and the observer is credited on every card.</p>
-      <div id="picks-list"></div>
-    </div>
-
-    <hr class="divider">
-
     <div id="sidebar-categories"></div>
 
     <hr class="divider">
@@ -1918,7 +1938,8 @@
   //   connections -- optional array of { id, relationship }. Only include a connection
   //                  when it's ecologically real (shared habitat, food source, competition,
   //                  etc.) -- don't force a link between species that don't actually interact.
-  //   phenology  -- optional array of { months: [1-12,...], label }. Marks specific windows
+  //   phenology  -- optional array of { months: [1-12,...], label, category }, category one of
+  //                 Flowering / Fruiting / Active / Notable to Spot. Marks specific windows
   //                 (flowering, fruiting, migration, etc.) used to power the "This Month"
   //                 widget and in-season badge. Omit entirely for species without a
   //                 meaningful seasonal spike (e.g. a bird present and active year-round).
@@ -1965,7 +1986,7 @@
         { id: "cp-ocoee-salamander", relationship: "Hemlock shade helps keep small streams cool, and stream-side salamanders like this one live and breed in such streams. Where hemlocks die, streams warm and aquatic diversity drops." }
       ],
       phenology: [
-        { months: [12,1,2], label: "Deep green among the bare hardwoods" }
+        { months: [12,1,2], label: "Deep green among the bare hardwoods", category: "Notable to Spot" }
       ],
       learnMoreLinks: [
         { label: "UGA Extension: hemlock woolly adelgid (Fannin and Gilmer)", url: "https://site.extension.uga.edu/fannin-gilmer/2021/04/check-for-hemlock-woolly-adelgid-now/" },
@@ -1990,7 +2011,7 @@
         { id: "cp-eastern-hemlock", relationship: "It feeds on hemlock sap: feeding at the needle base weakens the tree, and heavy infestations can kill it." }
       ],
       phenology: [
-        { months: [11, 12, 1, 2, 3, 4, 5, 6], label: "Woolly white masses visible on hemlock twigs" }
+        { months: [11, 12, 1, 2, 3, 4, 5, 6], label: "Woolly white masses visible on hemlock twigs", category: "Notable to Spot" }
       ],
       learnMoreLinks: [
         { label: "Georgia Forestry Commission fact sheet", url: "https://gatrees.org/resources/hemlock-woolly-adelgid-hwa-in-georgia-fact-sheet" },
@@ -2013,8 +2034,8 @@
       edible: "Bees turn the nectar into sourwood honey, prized for its light color and distinctive flavor. The leaves themselves taste sharply sour because they contain oxalic acid.",
       funFact: "The scientific name Oxydendrum means sour tree, and Sourwood Mountain is a well-known old-time Appalachian tune.",
       phenology: [
-        { months: [7], label: "Fragrant white flower clusters" },
-        { months: [10, 11], label: "Leaves turning red" }
+        { months: [7], label: "Fragrant white flower clusters", category: "Flowering" },
+        { months: [10, 11], label: "Leaves turning red", category: "Notable to Spot" }
       ],
       learnMoreLinks: [
         { label: "iNaturalist", url: "https://www.inaturalist.org/taxa/search?q=Oxydendrum+arboreum" }
@@ -2036,8 +2057,8 @@
       medicinal: "Some people historically used the leaves on cuts and wounds, which is one reason it is also called carpenter's leaf. This is traditional folk use, not a medical claim.",
       funFact: "The town of Galax, Virginia, is named for this plant. On some trails a patch of galax gives off a musky, skunk-like smell, and botanists have offered several ideas about why.",
       phenology: [
-        { months: [5, 6], label: "White flower wands in bloom" },
-        { months: [12, 1, 2], label: "Leaves turning bronze and crimson" }
+        { months: [5, 6], label: "White flower wands in bloom", category: "Flowering" },
+        { months: [12, 1, 2], label: "Leaves turning bronze and crimson", category: "Notable to Spot" }
       ],
       learnMoreLinks: [
         { label: "Virginia Wildflowers: Galax", url: "https://virginiawildflowers.org/2024/05/22/galax/" },
@@ -2063,7 +2084,7 @@
         { id: "cp-bashful-wakerobin", relationship: "Both spring plants are thought to rely on ants to carry their seeds away from the parent plant." }
       ],
       phenology: [
-        { months: [3, 4, 5], label: "Jug-shaped flowers at ground level" }
+        { months: [3, 4, 5], label: "Jug-shaped flowers at ground level", category: "Flowering" }
       ],
       learnMoreLinks: [
         { label: "NC State Extension Plant Toolbox", url: "https://plants.ces.ncsu.edu/plants/asarum-arifolium/common-name/little-brown-jugs/" },
@@ -2089,7 +2110,7 @@
         { id: "cp-little-brown-jugs", relationship: "Both spring plants are thought to rely on ants to carry their seeds away from the parent plant." }
       ],
       phenology: [
-        { months: [3, 4, 5], label: "Nodding pink flowers" }
+        { months: [3, 4, 5], label: "Nodding pink flowers", category: "Flowering" }
       ],
       learnMoreLinks: [
         { label: "Georgia Native Plant Society profile", url: "https://gnps.org/?p=23279" },
@@ -2114,8 +2135,8 @@
       caution: "The branches have sharp thorns up to about 3 inches long. Invasive shrubs like this are often controlled with herbicides, so avoid eating fruit from plants that may have been treated.",
       funFact: "Georgia's Jimmy Carter Plant Materials Center once offered a variety of autumn olive for wildlife plantings and stopped promoting it because of the harm it can cause.",
       phenology: [
-        { months: [8, 9, 10], label: "Ripe red fruit" },
-        { months: [4, 5, 6], label: "Fragrant flowers" }
+        { months: [8, 9, 10], label: "Ripe red fruit", category: "Fruiting" },
+        { months: [4, 5, 6], label: "Fragrant flowers", category: "Flowering" }
       ],
       learnMoreLinks: [
         { label: "USDA Forest Service fire effects profile", url: "https://www.fs.usda.gov/database/feis/plants/shrub/elaumb/all.html" },
@@ -2137,7 +2158,7 @@
       ecology: "River cooters live in large rivers, lakes and reservoirs, usually where there is plenty of aquatic vegetation and places to bask. Young turtles eat a mix of plants and animals, while adults feed mostly on aquatic plants and algae. They spend much of the day basking on logs and rocks, and they are wary and hard to approach. Females dig nests in soil close to the water in late spring. Because adults graze on aquatic plants and the females nest on land, river cooters connect the water with the shoreline.",
       funFact: "During courtship, a male swims above a female and vibrates his long front claws in front of her face.",
       phenology: [
-        { months: [4,5,6,7,8,9,10], label: "Basking on logs and rocks" }
+        { months: [4,5,6,7,8,9,10], label: "Basking on logs and rocks", category: "Active" }
       ],
       learnMoreLinks: [
         { label: "Tennessee Wildlife Resources Agency profile", url: "https://tn.gov/twra/wildlife/reptiles/turtle/river-cooter.html" },
@@ -2160,7 +2181,7 @@
       caution: "The berries are toxic to people and pets. Do not eat them.",
       funFact: "Holly wood takes dye so well that it was stained black and used in place of ebony for inlay work and piano keys.",
       phenology: [
-        { months: [10, 11, 12, 1, 2], label: "Red berries on female trees" }
+        { months: [10, 11, 12, 1, 2], label: "Red berries on female trees", category: "Fruiting" }
       ],
       learnMoreLinks: [
         { label: "Backyard Ecology: American holly", url: "https://www.backyardecology.net/american-holly/" },
@@ -2183,7 +2204,7 @@
       ecology: "Eastern white pine grows from the Georgia mountains north into Canada and does best on moist, well-drained soils, though it can hold on to rocky ridges. A single tree carries both pollen cones and seed cones, cone crops peak every three to five years, and the winged seeds travel on the wind. Birds, squirrels and other animals eat the seeds and use the tree for cover, and the tall crowns add a layer of evergreen structure above the hardwoods.",
       funFact: "In colonial times the tallest, straightest white pines were called mast trees because they were cut for the masts of sailing ships.",
       phenology: [
-        { months: [12,1,2], label: "Deep green among the bare hardwoods" }
+        { months: [12,1,2], label: "Deep green among the bare hardwoods", category: "Notable to Spot" }
       ],
       learnMoreLinks: [
         { label: "Northern Woodlands: eastern white pine", url: "https://northernwoodlands.org/outside_story/article/eastern-white-pine" },
@@ -2207,8 +2228,8 @@
       caution: "Sassafras roots and bark contain safrole, which is carcinogenic in large doses. It is no longer used to flavor root beer, and it should not be taken internally.",
       funFact: "Georgia Native Plant Society named sassafras its Plant of the Year for 2013.",
       phenology: [
-        { months: [4, 5], label: "Yellow flowers before the leaves" },
-        { months: [10, 11], label: "Leaves turning yellow, orange and red" }
+        { months: [4, 5], label: "Yellow flowers before the leaves", category: "Flowering" },
+        { months: [10, 11], label: "Leaves turning yellow, orange and red", category: "Notable to Spot" }
       ],
       learnMoreLinks: [
         { label: "Georgia Native Plant Society: Plant of the Year", url: "https://gnps.org/2013-plant-year-sassafras-albidum/" },
@@ -2235,8 +2256,8 @@
         { id: "cp-coral-pink-merulius", relationship: "Dead maple wood is one of the foods this wood-rotting fungus grows on." }
       ],
       phenology: [
-        { months: [2, 3], label: "Red flowers, an early nectar source" },
-        { months: [10, 11], label: "Leaves turning red" }
+        { months: [2, 3], label: "Red flowers, an early nectar source", category: "Flowering" },
+        { months: [10, 11], label: "Leaves turning red", category: "Notable to Spot" }
       ],
       learnMoreLinks: [
         { label: "Glen Arboretum: red maple", url: "https://wp.towson.edu/glenarboretum/?p=195" },
@@ -2261,7 +2282,7 @@
         { id: "cp-red-maple", relationship: "Red maple is its host: the larva feeds on the leaf and triggers the gall." }
       ],
       phenology: [
-        { months: [5, 6, 7, 8, 9], label: "Eyespot galls visible on red maple leaves" }
+        { months: [5, 6, 7, 8, 9], label: "Eyespot galls visible on red maple leaves", category: "Notable to Spot" }
       ],
       learnMoreLinks: [
         { label: "Wisconsin DNR: maple eyespot galls", url: "https://forestrynews.blogs.govdelivery.com/?p=11685" },
@@ -2285,7 +2306,7 @@
       edible: "The flowers are edible and tart, and are sometimes added to salads.",
       funFact: "Redbud flowers grow straight out of old wood, a habit called cauliflory.",
       phenology: [
-        { months: [3, 4], label: "Pink flowers on bare branches" }
+        { months: [3, 4], label: "Pink flowers on bare branches", category: "Flowering" }
       ],
       learnMoreLinks: [
         { label: "NC State Extension Plant Toolbox", url: "https://plants.ces.ncsu.edu/plants/cercis-canadensis/common-name/eastern-redbud/" },
@@ -2314,7 +2335,7 @@
         { id: "cp-coral-pink-merulius", relationship: "When a white oak dies, fungi like this one rot the fallen wood and return its nutrients to the soil." }
       ],
       phenology: [
-        { months: [9, 10], label: "Acorns ripening and dropping" }
+        { months: [9, 10], label: "Acorns ripening and dropping", category: "Fruiting" }
       ],
       learnMoreLinks: [
         { label: "NC State Extension Plant Toolbox", url: "https://plants.ces.ncsu.edu/plants/all/quercus-alba/" },
@@ -2341,7 +2362,7 @@
         { id: "cp-red-maple", relationship: "It eats red maple buds and fruit in late winter and early spring, when other foods are scarce." }
       ],
       phenology: [
-        { months: [9,10,11], label: "Burying acorns and nuts for winter" }
+        { months: [9,10,11], label: "Burying acorns and nuts for winter", category: "Active" }
       ],
       learnMoreLinks: [
         { label: "Raritan Headwaters: eastern gray squirrel", url: "https://www.raritanheadwaters.org/2020/04/13/creature-feature-eastern-gray-squirrel/" },
@@ -2363,8 +2384,8 @@
       ecology: "Umbrella magnolia grows in rich, moist woods, ravines, slopes and along streams in the Appalachian and Blue Ridge Mountains, tolerating deep shade. Its flowers are pollinated by beetles, and its red-coated seeds sit in the cone-like fruit. It is a good example of how a cove forest is built in layers, with an umbrella-leaved tree below the hardwoods and above the wildflowers.",
       funFact: "The wood smells bad when broken, and the flowers do too, which is part of how the tree gets attention from beetles.",
       phenology: [
-        { months: [4,5], label: "Large creamy flowers" },
-        { months: [9,10], label: "Red cone-like fruit" }
+        { months: [4,5], label: "Large creamy flowers", category: "Flowering" },
+        { months: [9,10], label: "Red cone-like fruit", category: "Fruiting" }
       ],
       learnMoreLinks: [
         { label: "NC State Extension Plant Toolbox", url: "https://plants.ces.ncsu.edu/plants/magnolia-tripetala/common-name/umbrella-magnolia/" },
@@ -2390,7 +2411,7 @@
         { id: "cp-witch-hazel-cone-gall-aphid", relationship: "The aphid's egg-laying makes the leaf grow a cone-shaped gall, and the young aphids feed inside it." }
       ],
       phenology: [
-        { months: [10, 11, 12], label: "Yellow flowers on nearly bare branches" }
+        { months: [10, 11, 12], label: "Yellow flowers on nearly bare branches", category: "Flowering" }
       ],
       learnMoreLinks: [
         { label: "USDA Forest Service: American witchhazel", url: "https://www.fs.usda.gov/wildflowers/plant-of-the-week/hamamelis_virginiana.shtml" },
@@ -2414,7 +2435,7 @@
         { id: "cp-american-witch-hazel", relationship: "Witch-hazel is its host: the leaf grows the gall that shelters the aphid." }
       ],
       phenology: [
-        { months: [5, 6, 7, 8, 9], label: "Cone galls visible on witch-hazel leaves" }
+        { months: [5, 6, 7, 8, 9], label: "Cone galls visible on witch-hazel leaves", category: "Notable to Spot" }
       ],
       funFact: "In lowland Virginia the aphid lives through seven generations a year that alternate between witch-hazel and river birch, while high-elevation populations stay on witch-hazel for a shorter three-generation cycle.",
       learnMoreLinks: [
@@ -2442,7 +2463,7 @@
         { id: "cp-bashful-wakerobin", relationship: "Bashful wakerobin is often found growing beneath mountain laurel and other heath-family shrubs." }
       ],
       phenology: [
-        { months: [5, 6], label: "Pink and white pinwheel flowers" }
+        { months: [5, 6], label: "Pink and white pinwheel flowers", category: "Flowering" }
       ],
       learnMoreLinks: [
         { label: "Virginia Wildflowers: mountain laurel", url: "https://virginiawildflowers.org/2015/05/24/mountain-laurel" },
@@ -2488,7 +2509,7 @@
       caution: "The leaves are toxic to people and many animals. Do not eat any part of the plant. Honey made from rhododendron or laurel nectar can also cause serious poisoning.",
       funFact: "The leaves droop and curl in freezing weather and open again as they warm up.",
       phenology: [
-        { months: [6, 7], label: "White to pink flower clusters" }
+        { months: [6, 7], label: "White to pink flower clusters", category: "Flowering" }
       ],
       learnMoreLinks: [
         { label: "Maryland Biodiversity Project: great rhododendron", url: "https://www.marylandbiodiversity.com/species/1460" },
@@ -2511,7 +2532,7 @@
       caution: "NC State lists sweetshrub as having low-severity poison characteristics. Do not eat any part of it.",
       funFact: "Other common names include Carolina allspice, sweet bubby bush and sweet Betsy.",
       phenology: [
-        { months: [5, 6], label: "Fragrant maroon flowers" }
+        { months: [5, 6], label: "Fragrant maroon flowers", category: "Flowering" }
       ],
       learnMoreLinks: [
         { label: "Georgia Native Plant Society profile", url: "https://gnps.org/plant/sweetshrub-calycanthus-floridus/" },
@@ -2536,7 +2557,7 @@
       caution: "The fruit holds an acrid oil, and NC State lists the plant as having low-severity poison characteristics. Do not eat it.",
       funFact: "Early colonists named it for the woodland bison and elk that ate its fruit in winter. Other names include oil nut and mountain coconut, and mother-in-law nut, which came from veiled poisoning threats.",
       phenology: [
-        { months: [5, 6], label: "Greenish-white flowers" }
+        { months: [5, 6], label: "Greenish-white flowers", category: "Flowering" }
       ],
       learnMoreLinks: [
         { label: "University of Georgia: Tree Root Parasite, Buffalo Nut", url: "https://urbanforestrysouth.org/resources/library/citations/tree-root-parasite-buffalo-nut" },
@@ -2560,7 +2581,7 @@
       caution: "The red seeds and the plant as a whole are poisonous, and the seeds are a strong laxative. Do not eat any part of it.",
       funFact: "The name hearts-a-bustin' comes from the capsules bursting open in fall to reveal the red seeds.",
       phenology: [
-        { months: [9, 10], label: "Capsules splitting to show red-orange seeds" }
+        { months: [9, 10], label: "Capsules splitting to show red-orange seeds", category: "Fruiting" }
       ],
       learnMoreLinks: [
         { label: "NC State Extension Plant Toolbox", url: "https://plants.ces.ncsu.edu/plants/euonymus-americanus/common-name/strawberry-bush" },
@@ -2584,7 +2605,7 @@
       edible: "The berries are edible but rather flavorless. Because the plant makes few berries, it is best to leave them for wildlife.",
       funFact: "Each berry comes from a pair of twin flowers, so the plant is also called twinberry and two-eyed berry.",
       phenology: [
-        { months: [10, 11, 12, 1, 2], label: "Red berries on the forest floor" }
+        { months: [10, 11, 12, 1, 2], label: "Red berries on the forest floor", category: "Fruiting" }
       ],
       learnMoreLinks: [
         { label: "Georgia Native Plant Society profile", url: "https://gnps.org/plant/partridgeberry-mitchella-repens/" },
@@ -2608,8 +2629,8 @@
       medicinal: "The Cherokee and other Native peoples used Christmas fern in traditional medicine. This is historical use, not medical advice.",
       funFact: "Its name comes from both its evergreen habit and the stocking shape of its leaflets.",
       phenology: [
-        { months: [12,1,2], label: "Green fronds on the bare winter forest floor" },
-        { months: [7,8,9], label: "Spore cases on the underside of fertile fronds" }
+        { months: [12,1,2], label: "Green fronds on the bare winter forest floor", category: "Notable to Spot" },
+        { months: [7,8,9], label: "Spore cases on the underside of fertile fronds", category: "Notable to Spot" }
       ],
       learnMoreLinks: [
         { label: "Northern Woodlands: the evergreen Christmas fern", url: "https://northernwoodlands.org/outside_story/article/christmas-ferns" },
@@ -2633,7 +2654,7 @@
       medicinal: "Native Americans used a tea of the leaves for rheumatism and stomach problems, and the name pipsissewa is said to mean breaks into small pieces, from a belief that it could break up kidney stones. This is traditional use, not medical advice.",
       funFact: "Its scientific name Chimaphila comes from Greek words meaning winter-loving.",
       phenology: [
-        { months: [6, 7, 8], label: "Nodding white flowers" }
+        { months: [6, 7, 8], label: "Nodding white flowers", category: "Flowering" }
       ],
       learnMoreLinks: [
         { label: "NC State Extension Plant Toolbox", url: "https://plants.ces.ncsu.edu/plants/chimaphila-maculata/common-name/striped-pipsissewa/" },
@@ -2657,7 +2678,7 @@
       edible: "The crisp, starchy rhizome has a mild cucumber flavor and was eaten by Native Americans. The berries are considered inedible.",
       funFact: "The two-tiered leaf arrangement is like a double-decker: the second tier only appears when the plant is ready to flower.",
       phenology: [
-        { months: [5, 6], label: "Flowers hanging beneath the upper leaves" }
+        { months: [5, 6], label: "Flowers hanging beneath the upper leaves", category: "Flowering" }
       ],
       learnMoreLinks: [
         { label: "NC State Extension Plant Toolbox", url: "https://plants.ces.ncsu.edu/plants/medeola-virginiana/common-name/indian-cucumber-root" },
@@ -2684,7 +2705,7 @@
         { id: "cp-jewelweed", relationship: "Both plants feed ruby-throated hummingbirds in late summer, when the birds are building energy for migration." }
       ],
       phenology: [
-        { months: [7, 8, 9], label: "Red flower spikes" }
+        { months: [7, 8, 9], label: "Red flower spikes", category: "Flowering" }
       ],
       learnMoreLinks: [
         { label: "Virginia Wildflowers: cardinal flower", url: "https://virginiawildflowers.org/2015/08/01/cardinal-flower" },
@@ -2711,7 +2732,7 @@
         { id: "cp-cardinal-flower", relationship: "Both plants feed ruby-throated hummingbirds in late summer, when the birds are building energy for migration." }
       ],
       phenology: [
-        { months: [6, 7, 8, 9, 10], label: "Orange spotted flowers" }
+        { months: [6, 7, 8, 9, 10], label: "Orange spotted flowers", category: "Flowering" }
       ],
       learnMoreLinks: [
         { label: "National Park Service: jewelweed", url: "https://www.nps.gov/shen/learn/nature/jewelweed.htm" },
@@ -2734,8 +2755,8 @@
       ecology: "Crane-fly orchid grows in forests across the Southeast and is a common early colonist of regrowing woodland. Its flowers, which have a nectar spur, are pollinated by noctuid moths, which pick up the pollen packet on one of their compound eyes. The packet keeps its cap on for at least eight minutes, which gives the moth time to reach a different plant and encourages cross-pollination. The tiny seedlings are usually found on decomposing wood, so rotting logs, stumps and wood chips help start the next generation. Because its single leaf grows in the cool months, it makes food while the canopy above is bare.",
       funFact: "The flowers were thought to resemble crane flies, which gave the plant its name.",
       phenology: [
-        { months: [7, 8], label: "Small flowers on a leafless spike" },
-        { months: [10, 11, 12, 1, 2, 3], label: "Purple-backed winter leaf" }
+        { months: [7, 8], label: "Small flowers on a leafless spike", category: "Flowering" },
+        { months: [10, 11, 12, 1, 2, 3], label: "Purple-backed winter leaf", category: "Notable to Spot" }
       ],
       learnMoreLinks: [
         { label: "North American Orchid Center: Tipularia discolor", url: "https://goorchids.northamericanorchidcenter.org/species/tipularia/discolor/" },
@@ -2761,7 +2782,7 @@
         { id: "cp-lace-winged-roadside-skipper", relationship: "Native cane, the genus that includes hill cane, is the probable food plant of this skipper's caterpillars." }
       ],
       phenology: [
-        { months: [10,11], label: "Leaves dropping" }
+        { months: [10,11], label: "Leaves dropping", category: "Notable to Spot" }
       ],
       learnMoreLinks: [
         { label: "ScienceDaily: new species of North American bamboo", url: "https://www.sciencedaily.com/releases/2007/03/070313113103.htm" },
@@ -2786,7 +2807,7 @@
         { id: "cp-hill-cane", relationship: "Native cane is the probable food plant of its caterpillars." }
       ],
       phenology: [
-        { months: [3, 4, 5, 6, 7, 8, 9], label: "Adults flying" }
+        { months: [3, 4, 5, 6, 7, 8, 9], label: "Adults flying", category: "Active" }
       ],
       funFact: "It is a butterfly that depends on a plant most people never notice: native cane.",
       learnMoreLinks: [
@@ -2810,7 +2831,7 @@
       caution: "All parts are mildly toxic because of cardiac glycosides. Do not eat any part of the plant.",
       funFact: "The species name variegata refers to the reddish ring around each flower.",
       phenology: [
-        { months: [5, 6, 7], label: "White flower clusters with a red ring" }
+        { months: [5, 6, 7], label: "White flower clusters with a red ring", category: "Flowering" }
       ],
       learnMoreLinks: [
         { label: "NC State Extension Plant Toolbox", url: "https://plants.ces.ncsu.edu/plants/Asclepias-variegata" },
@@ -2834,7 +2855,7 @@
       edible: "The juicy pulp around the seeds is edible fresh.",
       funFact: "The Ocoee River in Tennessee is named for this plant, using its Cherokee name.",
       phenology: [
-        { months: [6, 7, 8, 9], label: "Elaborate purple and white flowers" }
+        { months: [6, 7, 8, 9], label: "Elaborate purple and white flowers", category: "Flowering" }
       ],
       learnMoreLinks: [
         { label: "Georgia master gardener: maypops and passionfruits", url: "https://www.times-georgian.com/farm_and_garden/ask-a-master-gardener-can-you-tell-me-about-maypops-and-passionfruits/article_a077e885-6a54-5893-af68-b130956a85ee.html" },
@@ -2857,7 +2878,7 @@
       ecology: "Asian mazus is native to eastern and southern Asia and has spread across much of North America, where the USDA lists it as an invasive species. It grows in lawns, along creeks and on wet roadsides, and it tolerates disturbance, which is why it turns up on trail edges and cleared ground. It often spreads as a hitchhiker in nursery pots. It is a small plant, but it shows how non-native plants often arrive: quietly, in soil and pots moved by people.",
       funFact: "In Japan, part of its native range, it is a very common wayside plant.",
       phenology: [
-        { months: [4,5,6,7,8,9,10], label: "Small purple and white flowers" }
+        { months: [4,5,6,7,8,9,10], label: "Small purple and white flowers", category: "Flowering" }
       ],
       learnMoreLinks: [
         { label: "Alabama Plant Atlas: Asian mazus", url: "https://dev.alabama.plantatlas.usf.edu/plant/species/3475" },
@@ -2882,7 +2903,7 @@
         { id: "cp-white-oak", relationship: "Its caterpillars feed on the undersides of fallen oak leaves, such as those a white oak drops each fall." }
       ],
       phenology: [
-        { months: [5, 6, 7], label: "Adults flying" }
+        { months: [5, 6, 7], label: "Adults flying", category: "Active" }
       ],
       funFact: "Despite looking like a beetle, it is a moth, a day-flying member of the leaf skeletonizer moth family.",
       learnMoreLinks: [
@@ -2905,7 +2926,7 @@
       season: "One of the first dragonflies of spring, flying from about April to early June.",
       ecology: "Blue corporals breed at ponds, lakes, slow stretches of creeks and even ditches. The larvae live in the water and prey mostly on midge and mayfly larvae. The adults are sally hunters: they make quick, short flights from a perch to catch small flies, beetles and leafhoppers. Unlike most dragonflies, they usually perch on the ground, so look low on bare banks and trails. Because the young feed in water and the adults hunt over land, this dragonfly links the aquatic and forest food webs.",
       phenology: [
-        { months: [4, 5], label: "Adults flying, among the first dragonflies of spring" }
+        { months: [4, 5], label: "Adults flying, among the first dragonflies of spring", category: "Active" }
       ],
       funFact: "Its name comes from the two pale stripes on the thorax that look like a corporal's rank insignia. Males start out tan like females and turn powdery blue as they mature.",
       learnMoreLinks: [
@@ -2927,7 +2948,7 @@
       season: "Adults fly in late spring and summer.",
       ecology: "Petaltails belong to an ancient dragonfly family thought to have changed little since the fossil record. Adults ambush large insects, including other dragonflies, from their trunk perches. The larvae are semi-terrestrial: they live in muddy leaf litter in and around forest seeps, spots where groundwater trickles out of a hillside. Because it breeds only where a seep stays wet, finding one usually means a wet forest seep is nearby, often marked by ferns and skunk cabbage.",
       phenology: [
-        { months: [5, 6, 7, 8], label: "Adults perching on tree trunks" }
+        { months: [5, 6, 7, 8], label: "Adults perching on tree trunks", category: "Active" }
       ],
       funFact: "Petaltails look virtually identical to relatives that flew among the dinosaurs in the Jurassic period.",
       learnMoreLinks: [
@@ -2950,7 +2971,7 @@
       ecology: "As its name says, it hunts other dragonflies, along with damselflies and butterflies as big as swallowtails. It even takes monarchs, eating the thorax and abdomen first to avoid the parts richest in toxins. Adults hunt along streams and rivers and over open areas and woodland edges. The larvae are flat, dark and leaf-shaped, hiding in leaf litter and silt at the edges of streams, where they eat small invertebrates, including other dragonfly larvae, and young amphibians and fish. Dragonhunters live about four to seven years, and the clubtail larval stage alone can last several years, so most of a dragonhunter's life is spent as a hidden predator in the stream. It is one of the top insect predators around the water.",
       funFact: "The flat, leaf-like body of the larva helps it disappear among fallen leaves on the stream bottom.",
       phenology: [
-        { months: [6,7,8], label: "Adults patrolling streams and shorelines" }
+        { months: [6,7,8], label: "Adults patrolling streams and shorelines", category: "Active" }
       ],
       season: "Adults fly for about three months in summer, roughly June through August.",
       learnMoreLinks: [
@@ -2973,7 +2994,7 @@
       season: "Adults emerge in spring and can be found until about September.",
       ecology: "Females lay eggs on dead standing trees or in nearby soil, and the larvae live inside dead wood. Unlike most click beetle larvae, which are plant-feeding wireworms, these larvae are predators of other beetle larvae and soft-bodied insects that tunnel through decaying wood, especially longhorn beetle larvae. Captive larvae ate more than 200 longhorn larvae each. Adults eat little, mostly nectar and plant juices. The false eyespots are thought to startle predators.",
       phenology: [
-        { months: [4, 5, 6, 7, 8, 9], label: "Adult beetles active" }
+        { months: [4, 5, 6, 7, 8, 9], label: "Adult beetles active", category: "Active" }
       ],
       funFact: "In captivity, larvae have molted as many as 20 times and taken up to 22 months to mature.",
       learnMoreLinks: [
@@ -2997,7 +3018,7 @@
       ecology: "Bullfrogs live in permanent water such as lakes, ponds and slow rivers, and they are ambush predators that eat nearly anything that fits in their mouths, including insects, amphibians, reptiles, small mammals, birds and even other bullfrogs. In turn they are eaten by herons, snakes, otters and large fish. Females lay thousands of eggs in floating sheets, and the tadpoles can take up to two years to transform, often overwintering in the water. Bullfrogs are native to Georgia, but in the western United States they are invasive and threaten native frogs.",
       funFact: "A male's call can carry for more than half a mile.",
       phenology: [
-        { months: [5, 6, 7, 8], label: "Males calling at night" }
+        { months: [5, 6, 7, 8], label: "Males calling at night", category: "Active" }
       ],
       learnMoreLinks: [
         { label: "UGA Savannah River Ecology Lab: bullfrog", url: "https://srelherp.uga.edu/frogs-and-toads/bullfrog" },
@@ -3043,7 +3064,7 @@
       ecology: "Wormsnakes spend most of their lives beneath leaf litter, rocks and rotting logs or burrowed in soft soil, in moist hardwood forests with deep humus. They feed mainly on earthworms, with some insects and slugs, so they depend on the leaf litter and soil life that a hardwood forest builds. Females lay a few eggs under logs or litter in summer. In dry weather the snakes retreat deeper underground where the soil is moister.",
       funFact: "It is harmless. It cannot bite, and the spine on its tail is not sharp enough to pierce skin, though it may release a foul-smelling musk.",
       phenology: [
-        { months: [5,6,7,8], label: "Most often found under logs and rocks" }
+        { months: [5,6,7,8], label: "Most often found under logs and rocks", category: "Active" }
       ],
       learnMoreLinks: [
         { label: "Maryland Biodiversity Project: eastern wormsnake", url: "https://www.marylandbiodiversity.com/species/888" },
@@ -3065,7 +3086,7 @@
       season: "Active in warm weather. Mating runs from about April to August.",
       ecology: "Fence lizards live along forest edges and in dry, open woods with plenty of logs and stumps, and they bask on logs, stumps and tree trunks. They eat insects and spiders, including beetles, ants, moths and grasshoppers, and forage about twice a day. Snakes, birds and cats eat them. When chased, a fence lizard runs up a trunk and keeps the tree between itself and the predator, spiraling upward if it is circled. Males do push-ups and bob their heads and flash their blue patches to guard territory.",
       phenology: [
-        { months: [4, 5, 6, 7, 8], label: "Males displaying blue patches" }
+        { months: [4, 5, 6, 7, 8], label: "Males displaying blue patches", category: "Active" }
       ],
       funFact: "The bright blue patches that impress rival males also make those males easier for birds to spot.",
       learnMoreLinks: [
@@ -3089,7 +3110,7 @@
       ecology: "Turkey vultures eat almost nothing but carrion, which makes them nature's clean-up crew: by removing dead animals quickly they recycle nutrients and limit the spread of disease. Unlike most birds they find food by smell as well as sight, and they can detect the gases of early decay even beneath a forest canopy. Their bare heads stay cleaner while they feed. They ride thermals, so on cool mornings they wait for the sun to warm the ground, and they roost in groups. Black vultures often follow them to a carcass and then rip it open, which turkey vultures cannot always do.",
       funFact: "The genus name Cathartes comes from a Greek word meaning purifier.",
       phenology: [
-        { months: [10,11,12,1], label: "More vultures as northern birds arrive" }
+        { months: [10,11,12,1], label: "More vultures as northern birds arrive", category: "Active" }
       ],
       learnMoreLinks: [
         { label: "All About Birds: turkey vulture", url: "https://allaboutbirds.org/guide/turvul" },
@@ -3155,7 +3176,7 @@
         { id: "cp-red-maple", relationship: "Dead maple wood is another of its common foods." }
       ],
       phenology: [
-        { months: [5, 6, 7, 8, 9, 10, 11], label: "Coral-pink brackets on dead logs" }
+        { months: [5, 6, 7, 8, 9, 10, 11], label: "Coral-pink brackets on dead logs", category: "Fruiting" }
       ],
       funFact: "Its species name incarnata means flesh-colored, and it was first described in 1822 under an older name, Merulius incarnatus.",
       learnMoreLinks: [
@@ -3214,19 +3235,27 @@
     const monthName = MONTH_NAMES[currentMonth - 1];
     const widget = document.getElementById('seasonal-widget');
 
-    const matches = [];
+    // A fixed display order so the same categories always appear in the same
+    // place from month to month, rather than shuffling with the data order.
+    const CATEGORY_ORDER = ['Flowering', 'Fruiting', 'Active', 'Notable to Spot'];
+    const byCategory = {};
     const seenNames = new Set();
     allEntries.forEach(s => {
-      const label = getCurrentPhenologyLabel(s);
-      // Skip if we've already listed this species from a different pin --
-      // e.g. two Kudzu pins shouldn't produce two identical entries here.
-      if (label && !seenNames.has(s.name)) {
-        matches.push({ id: s.id, name: s.name, label });
+      if (!s.phenology) return;
+      const match = s.phenology.find(p => p.months.includes(currentMonth));
+      // Skip if we've already listed this species from a different pin.
+      if (match && !seenNames.has(s.name)) {
+        const cat = match.category || 'Notable to Spot';
+        (byCategory[cat] = byCategory[cat] || []).push({ id: s.id, name: s.name, label: match.label });
         seenNames.add(s.name);
       }
     });
 
-    if (matches.length === 0) {
+    const categoriesPresent = CATEGORY_ORDER.filter(c => byCategory[c] && byCategory[c].length);
+    // Keeps an unexpected category from being silently dropped.
+    Object.keys(byCategory).forEach(c => { if (!categoriesPresent.includes(c)) categoriesPresent.push(c); });
+
+    if (categoriesPresent.length === 0) {
       widget.innerHTML = `
         <div class="seasonal-title">This Month at Ridgeway</div>
         <p class="seasonal-empty">${allEntries.length === 0
@@ -3236,15 +3265,22 @@
       return;
     }
 
-    const itemsHtml = matches.map(m => `
-      <button type="button" class="seasonal-item" data-target="${m.id}">
-        <span class="seasonal-label">${m.label}</span>${m.name}
-      </button>
+    const groupsHtml = categoriesPresent.map(cat => `
+      <div class="seasonal-group">
+        <div class="seasonal-group-title">${cat}</div>
+        <div class="seasonal-items">
+          ${byCategory[cat].map(m => `
+            <button type="button" class="seasonal-item" data-target="${m.id}">
+              <span class="seasonal-label">${m.label}</span>${m.name}
+            </button>
+          `).join('')}
+        </div>
+      </div>
     `).join('');
 
     widget.innerHTML = `
       <div class="seasonal-title">This Month at Ridgeway: ${monthName}</div>
-      <div class="seasonal-items">${itemsHtml}</div>
+      ${groupsHtml}
     `;
 
     widget.querySelectorAll('.seasonal-item').forEach(btn => {
@@ -3388,9 +3424,9 @@
     }
   }
 
-  const sightingsNoteEl = document.getElementById('sightings-note');
-  const SIGHTINGS_DEFAULT_NOTE = sightingsNoteEl.textContent;
-
+  // sightingsNoteEl / SIGHTINGS_DEFAULT_NOTE are looked up further down, once
+  // the Filters panel (which now holds the note) exists. These functions only
+  // run after the layer is switched on, which is always later than that.
   function showStatus(message, isError) {
     sightingsNoteEl.textContent = message;
     sightingsNoteEl.classList.toggle('is-error', !!isError);
@@ -3514,41 +3550,6 @@
     }
   }
 
-  const sightingsMasterToggle = document.getElementById('sightings-master-toggle');
-  const sightingsSubFilters = document.getElementById('sightings-sub-filters');
-
-  // Browsers restore checkbox states on page load/refresh based on what was
-  // last clicked, independent of the HTML's declared default -- this is what
-  // caused the master toggle to visually appear checked while the page's
-  // actual data state (sightingsEnabled = false) hadn't caught up, so no
-  // pins showed until it was toggled off and back on. Forcing all of these
-  // checkboxes to known values here keeps what's on screen honest.
-  sightingsMasterToggle.checked = false;
-  sightingsSubFilters.classList.remove('visible');
-  sightingsSubFilters.querySelectorAll('input[type="checkbox"]').forEach(cb => {
-    cb.checked = true;
-    sightingBucketState[cb.dataset.bucket] = true;
-  });
-
-  // The sidebar checkbox just changes actual layer presence on the map --
-  // all the real logic (fetching, sub-filter visibility, syncing the layer
-  // control's own checkbox) happens in the overlayadd/overlayremove
-  // handlers below, so both entry points stay in sync automatically.
-  sightingsMasterToggle.addEventListener('change', (e) => {
-    if (e.target.checked) {
-      map.addLayer(sightingsLayer);
-    } else {
-      map.removeLayer(sightingsLayer);
-    }
-  });
-
-  sightingsSubFilters.querySelectorAll('input[type="checkbox"]').forEach(cb => {
-    cb.addEventListener('change', (e) => {
-      sightingBucketState[e.target.dataset.bucket] = e.target.checked;
-      applySightingFilters();
-    });
-  });
-
   const layerControl = L.control.layers({
     "Street map": streetLayer,
     "Satellite": L.layerGroup([satelliteLayer, satelliteLabels]),
@@ -3556,30 +3557,6 @@
     "USGS Topo": usgsTopoLayer
   }, null, { position: 'topright', collapsed: window.matchMedia('(max-width: 760px)').matches }).addTo(map);
 
-  // Registered here, before the Trails/Areas overlays are added further
-  // down, so it appears between the base layers and those in the control.
-  layerControl.addOverlay(sightingsLayer, "Community Sightings (iNaturalist)");
-
-  map.on('overlayadd', (e) => {
-    if (e.layer !== sightingsLayer) return;
-    sightingsEnabled = true;
-    sightingsMasterToggle.checked = true;
-    sightingsSubFilters.classList.add('visible');
-    if (!sightingsLoaded) {
-      fetchCommunitySightings();
-    } else {
-      applySightingFilters();
-    }
-  });
-
-  map.on('overlayremove', (e) => {
-    if (e.layer !== sightingsLayer) return;
-    sightingsEnabled = false;
-    sightingsMasterToggle.checked = false;
-    sightingsSubFilters.classList.remove('visible');
-    hideStatus();
-    applySightingFilters();
-  });
 
 
   // ---- MOBILE DRAWER / BOTTOM SHEET ----
@@ -3710,56 +3687,6 @@
     markerById[s.id] = marker;
   });
 
-  layerControl.addOverlay(communityClusterGroup, "Community Picks (iNaturalist)");
-
-  const picksMasterToggle = document.getElementById('picks-master-toggle');
-  const picksListEl = document.getElementById('picks-list');
-  document.getElementById('picks-count').textContent = communityPicks.length;
-
-  // Sidebar list, grouped by category
-  ['tree', 'plant', 'animal', 'fungi'].forEach(cat => {
-    const items = communityPicks.filter(s => s.category === cat);
-    if (items.length === 0) return;
-    const group = document.createElement('details');
-    group.className = 'picks-group';
-    const title = document.createElement('summary');
-    title.className = 'picks-group-title';
-    title.textContent = `${categoryMeta[cat].label} (${items.length})`;
-    group.appendChild(title);
-    const list = document.createElement('div');
-    list.className = 'species-list';
-    items.forEach(s => {
-      const row = document.createElement('button');
-      row.className = 'species-row';
-      row.type = 'button';
-      row.innerHTML = `<span class="common">${s.name}</span><span class="sci">${s.sciName}</span>`;
-      row.addEventListener('click', () => selectSpecies(s.id));
-      rowById[s.id] = row;
-      list.appendChild(row);
-    });
-    group.appendChild(list);
-    picksListEl.appendChild(group);
-  });
-
-  // Master toggle and the map's layer menu stay in sync.
-  picksMasterToggle.addEventListener('change', (e) => {
-    if (e.target.checked) {
-      map.addLayer(communityClusterGroup);
-    } else {
-      map.removeLayer(communityClusterGroup);
-    }
-  });
-  map.on('overlayadd', (e) => {
-    if (e.layer !== communityClusterGroup) return;
-    picksMasterToggle.checked = true;
-    picksListEl.style.display = '';
-  });
-  map.on('overlayremove', (e) => {
-    if (e.layer !== communityClusterGroup) return;
-    picksMasterToggle.checked = false;
-    picksListEl.style.display = 'none';
-    if (activeId && entryById[activeId] && entryById[activeId].observation) clearSelection();
-  });
 
   // ---- TRAIL TRACKS ----
   // Real GPS tracks recorded on-site, drawn as trail lines. Add new trails
@@ -3871,18 +3798,23 @@
   Object.keys(habitatMeta).forEach(hab => { habitatState[hab] = true; });
   Object.keys(statusMeta).forEach(st => { statusState[st] = true; });
 
+  // Replaced by the Filters control further down, once it exists.
   const filterUi = { update() {} };
 
   function applyCombinedFilters() {
     let shown = 0;
+    const picksOn = map.hasLayer(communityClusterGroup);
     allEntries.forEach(s => {
       // Habitat/status filters only apply to entries that actually have those
       // fields -- a landmark with no habitat or status should never be hidden
-      // by those filters, only by its own category checkbox.
+      // by those filters, only by its own category checkbox. An entry with
+      // an `observation` (a Community Pick) also depends on the Picks toggle,
+      // since its row lives in the same A-Z list as verified species.
       const categoryOk = categoryState[s.category];
       const habitatOk = !s.habitat || habitatState[s.habitat];
       const statusOk = !s.status || statusState[s.status];
-      const visible = categoryOk && habitatOk && statusOk;
+      const picksOk = !s.observation || picksOn;
+      const visible = categoryOk && habitatOk && statusOk && picksOk;
       const group = s.observation ? communityClusterGroup : speciesClusterGroup;
       if (visible) {
         shown++;
@@ -3897,27 +3829,44 @@
     filterUi.update(shown);
   }
 
+  if (species.length === 0) {
+    const emptyNote = document.createElement('p');
+    emptyNote.className = 'how-to';
+    emptyNote.textContent = 'No species have been confirmed on a guide visit yet. Community Picks in the list below come from iNaturalist observations.';
+    container.appendChild(emptyNote);
+  }
+
+  // One collapsed-by-default section rather than one per category, since the
+  // Trees/Plants/Animals/etc. breakdown already lives in the Filters panel's
+  // Type section -- this is purely for browsing by name. Category sub-headers
+  // inside it are plain labels (no checkbox, not collapsible), for readability.
+  const allBlock = document.createElement('details');
+  allBlock.className = 'category-block';
+
+  const allHead = document.createElement('summary');
+  allHead.className = 'category-head';
+  allHead.innerHTML = `
+    <span class="label">All Species (A-Z)</span>
+    <span class="count">${allEntries.length}</span>
+  `;
+  allBlock.appendChild(allHead);
+
   Object.keys(categoryMeta).forEach(cat => {
     const meta = categoryMeta[cat];
-    const items = species.filter(s => s.category === cat);
+    const items = allEntries.filter(s => s.category === cat).sort((a, b) => a.name.localeCompare(b.name));
     if (items.length === 0) return;
 
-    const block = document.createElement('div');
-    block.className = 'category-block';
-
-    const head = document.createElement('label');
-    head.className = 'category-head';
-    head.innerHTML = `
-      <input type="checkbox" checked autocomplete="off" data-category="${cat}">
+    const subhead = document.createElement('div');
+    subhead.className = 'species-subhead';
+    subhead.innerHTML = `
       <span class="dot" style="background:${meta.color}"></span>
       <span class="label">${meta.label}</span>
       <span class="count">${items.length}</span>
     `;
-    block.appendChild(head);
+    allBlock.appendChild(subhead);
 
     const list = document.createElement('div');
     list.className = 'species-list';
-    list.id = `list-${cat}`;
 
     items.forEach(s => {
       const row = document.createElement('button');
@@ -3929,18 +3878,17 @@
       list.appendChild(row);
     });
 
-    block.appendChild(list);
-    container.appendChild(block);
-
-    head.querySelector('input').addEventListener('change', (e) => setFilter('category', cat, e.target.checked));
+    allBlock.appendChild(list);
   });
+  if (allEntries.length > 0) container.appendChild(allBlock);
 
   // ---- FILTERS CONTROL (an icon button on the map, beside the layers button) ----
   // One place for everything that decides which pins are visible: type, habitat,
   // native status, and (while the Community Sightings layer is on) sighting types.
   // categoryState / habitatState / statusState stay the single source of truth;
   // every checkbox carrying a data-category / data-habitat / data-status attribute
-  // is kept in step by setFilter().
+  // is kept in step by setFilter(). Group counts cover allEntries (species and
+  // Community Picks together).
   function setFilter(kind, key, checked) {
     const state = kind === 'category' ? categoryState : kind === 'habitat' ? habitatState : statusState;
     state[key] = checked;
@@ -3958,9 +3906,30 @@
           <span class="filters-badge" id="filters-badge" aria-hidden="true"></span>
         </button>
         <div class="filters-panel" id="filters-panel" role="group" aria-label="Map filters" hidden>
+          <div class="fp-section-title">Show</div>
+          <label class="fp-row">
+            <input type="checkbox" id="filters-sightings-toggle" autocomplete="off">
+            <span class="dot" style="background:#3d6b8a"></span>
+            <span>Community Sightings</span>
+          </label>
+          <p class="sightings-note" id="sightings-note">Real sightings logged by naturalists near the park, via iNaturalist.</p>
+          <label class="fp-row">
+            <input type="checkbox" id="filters-picks-toggle" checked autocomplete="off">
+            <span class="dot" style="background:#2a8f86"></span>
+            <span>Community Picks</span>
+          </label>
           <div id="filters-groups"></div>
           <div class="filters-sightings" id="filters-sightings" hidden>
-            <div class="fp-section-title">Community Sightings</div>
+            <div class="fp-section-title">Sighting types</div>
+            <div class="sightings-sub-filters visible" id="sightings-sub-filters">
+              <label class="filter-check"><input type="checkbox" checked autocomplete="off" data-bucket="plants"> Plants</label>
+              <label class="filter-check"><input type="checkbox" checked autocomplete="off" data-bucket="fungi"> Fungi &amp; Lichens</label>
+              <label class="filter-check"><input type="checkbox" checked autocomplete="off" data-bucket="birds"> Birds</label>
+              <label class="filter-check"><input type="checkbox" checked autocomplete="off" data-bucket="mammals"> Mammals</label>
+              <label class="filter-check"><input type="checkbox" checked autocomplete="off" data-bucket="herps"> Reptiles &amp; Amphibians</label>
+              <label class="filter-check"><input type="checkbox" checked autocomplete="off" data-bucket="insects"> Insects &amp; Spiders</label>
+              <label class="filter-check"><input type="checkbox" checked autocomplete="off" data-bucket="other"> Other Wildlife</label>
+            </div>
           </div>
           <div class="fp-footer">
             <span class="fp-summary" id="filters-summary" aria-live="polite"></span>
@@ -3983,7 +3952,7 @@
   const filtersGroupsEl = filtersBox.querySelector('#filters-groups');
   const isPhoneWidth = () => window.matchMedia('(max-width: 760px)').matches;
 
-  // Groups. Options nobody uses (for example Open Field, or Introduced) are left out
+  // Groups. Options nobody uses (for example Landmarks, or Introduced) are left out
   // so the panel never offers a checkbox that can change nothing.
   [
     { kind: 'category', field: 'category', title: 'Type', meta: categoryMeta },
@@ -4009,16 +3978,83 @@
     });
   });
 
-  // Sighting-type checkboxes live in this panel too. They are moved here, not copied,
-  // so the existing Community Sightings code keeps working untouched.
+  // ---- SHOW: Community Sightings and Community Picks toggles ----
+  // These live in the Filters panel now, alongside Type/Habitat/Native
+  // status, since all of them are "what shows on the map" controls -- the
+  // native Layers menu (top-right) stays reserved for base maps, Trails,
+  // and Areas. Each toggle is now the single entry point for its layer
+  // (no separate sidebar copy and no native Layers-control copy to keep in
+  // sync), so this wiring talks to the map directly rather than through
+  // Leaflet's overlayadd/overlayremove events.
   const filtersSightingsSection = filtersBox.querySelector('#filters-sightings');
-  filtersSightingsSection.appendChild(sightingsSubFilters);
-  map.on('overlayadd overlayremove', e => {
-    if (e.layer === sightingsLayer) filtersSightingsSection.hidden = !map.hasLayer(sightingsLayer);
+  const sightingsSubFilters = filtersBox.querySelector('#sightings-sub-filters');
+  const sightingsToggle = filtersBox.querySelector('#filters-sightings-toggle');
+  const picksToggle = filtersBox.querySelector('#filters-picks-toggle');
+  const sightingsNoteEl = filtersBox.querySelector('#sightings-note');
+  const SIGHTINGS_DEFAULT_NOTE = sightingsNoteEl.textContent;
+
+  // Browsers restore checkbox states on page load/refresh based on what was
+  // last clicked, independent of the HTML's declared default -- forcing
+  // known values here keeps what's on screen honest.
+  sightingsToggle.checked = false;
+  filtersSightingsSection.hidden = true;
+  sightingsSubFilters.querySelectorAll('input[type="checkbox"]').forEach(cb => {
+    cb.checked = true;
+    sightingBucketState[cb.dataset.bucket] = true;
+  });
+
+  // The checkbox only expresses intent to the map; layeradd/layerremove
+  // (which fire for a layer add/remove from anywhere, unlike
+  // overlayadd/overlayremove which need Layers-control registration) are
+  // the single source of truth that actually updates the UI, so any future
+  // code path that adds or removes these layers stays in sync too.
+  sightingsToggle.addEventListener('change', (e) => {
+    if (e.target.checked) map.addLayer(sightingsLayer); else map.removeLayer(sightingsLayer);
+  });
+
+  map.on('layeradd', (e) => {
+    if (e.layer !== sightingsLayer) return;
+    sightingsEnabled = true;
+    sightingsToggle.checked = true;
+    filtersSightingsSection.hidden = false;
+    if (!sightingsLoaded) fetchCommunitySightings(); else applySightingFilters();
+  });
+
+  map.on('layerremove', (e) => {
+    if (e.layer !== sightingsLayer) return;
+    sightingsEnabled = false;
+    sightingsToggle.checked = false;
+    filtersSightingsSection.hidden = true;
+    hideStatus();
+    applySightingFilters();
+  });
+
+  sightingsSubFilters.querySelectorAll('input[type="checkbox"]').forEach(cb => {
+    cb.addEventListener('change', (e) => {
+      sightingBucketState[e.target.dataset.bucket] = e.target.checked;
+      applySightingFilters();
+    });
+  });
+
+  picksToggle.addEventListener('change', (e) => {
+    if (e.target.checked) map.addLayer(communityClusterGroup); else map.removeLayer(communityClusterGroup);
+  });
+
+  map.on('layeradd', (e) => {
+    if (e.layer !== communityClusterGroup) return;
+    picksToggle.checked = true;
+    applyCombinedFilters();
+  });
+
+  map.on('layerremove', (e) => {
+    if (e.layer !== communityClusterGroup) return;
+    picksToggle.checked = false;
+    if (activeId && entryById[activeId] && entryById[activeId].observation) clearSelection();
+    applyCombinedFilters();
   });
 
   // Place the panel under the button, right-aligned, and cap its height so it never runs
-  // off the screen or under the locate and zoom buttons at the bottom right.
+  // off the screen or under the navigation and zoom buttons at the bottom right.
   function positionFiltersPanel() {
     if (filtersPanel.hidden) return;
     const vw = document.documentElement.clientWidth || window.innerWidth;
@@ -4546,7 +4582,6 @@
     "date": "2024-05-10",
     "count": 283
   },
-  "peakDay": { "date": "2024-05-10", "count": 283, "observers": 7 },
   "top": [
     {
       "sci": "Asarum arifolium",
@@ -4660,13 +4695,7 @@
     'JFMAMJJASOND'.split('').forEach(l => labels.appendChild(el('span', '', l)));
     area.appendChild(labels);
     const maxMonth = MONTH_NAMES[S.months.indexOf(mmax)];
-    // Months with hardly any records (at most 10 percent of the peak month and 3 percent of all records), worked out from the data so the wording stays true after a refresh.
-    const quietNames = S.months.map((c, i) => c <= Math.min(0.1 * mmax, 0.03 * S.total) ? MONTH_NAMES[i] : null).filter(Boolean);
-    const quietText = quietNames.length
-      ? quietNames.slice(0, -1).join(', ') + (quietNames.length > 1 ? ' and ' : '') + quietNames[quietNames.length - 1] + (quietNames.length > 1 ? ' are' : ' is') + ' barely covered, so'
-      : 'Coverage is uneven, so';
-    const dayText = S.peakDay.observers === 1 ? 'recorded by a single observer' : 'when ' + S.peakDay.observers + ' observers were recording at once';
-    area.appendChild(el('p', 'num-note', `${maxMonth} alone holds ${S.months[S.months.indexOf(mmax)]} of the ${S.total} records, and ${S.peakDay.count} of those come from a single day, ${fmtDate(S.peakDay.date)}, ${dayText}. ${quietText} a quiet season here usually means nobody was looking, not that nothing was there. Your own sightings in those months would fill real gaps.`));
+    area.appendChild(el('p', 'num-note', `${maxMonth} alone holds ${S.months[S.months.indexOf(mmax)]} of the ${S.total} records, and ${S.topDay.count} of those come from a single day, ${fmtDate(S.topDay.date)}, when seven observers were recording at once. Fall and winter are barely covered, so a quiet season here usually means nobody was looking, not that nothing was there. Your own winter and fall sightings would fill real gaps.`));
 
     area.appendChild(el('div', 'num-subhead', 'Most-recorded species'));
     const top = el('div', 'num-top');
@@ -4939,11 +4968,24 @@
     activeId = id;
     markerById[id].setIcon(iconFor(s, true));
     rowById[id].classList.add('active');
-    const openGroup = rowById[id].closest('details.picks-group');
-    if (openGroup) openGroup.open = true;
+    // The A-Z list is collapsed by default; open it so the highlighted row is visible.
+    const listBlock = rowById[id].closest('details.category-block');
+    if (listBlock) listBlock.open = true;
 
-    map.panTo([s.lat, s.lng]);
+    // Render before flying so the card's real height is known: on a phone the
+    // card is a bottom sheet that overlaps the map, so centering on the raw pin
+    // would land it behind the sheet. Shifting the map's own center down by half
+    // the sheet's height puts the pin in the middle of what is still visible.
+    // Math.max: zoom in to at least 18, but never zoom out from a closer view.
     renderInfoPanel(s);
+    const targetZoom = Math.max(map.getZoom(), 18);
+    if (isPhoneWidth()) {
+      const sheetHeight = infoPanel.offsetHeight;
+      const targetPoint = map.project([s.lat, s.lng], targetZoom).add([0, sheetHeight / 2]);
+      map.flyTo(map.unproject(targetPoint, targetZoom), targetZoom);
+    } else {
+      map.flyTo([s.lat, s.lng], targetZoom);
+    }
     closeSidebarDrawer();
     infoPanel.classList.add('open');
   }
